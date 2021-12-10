@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const config = require('./config');
+
 const path = require('path');
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -9,14 +9,10 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 const server = require('http').createServer(app);
-const io = require("socket.io")(server,{
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Authorization","authorization"],
-        credentials: true
-    }
-});
+
+const config = require('./config');
+const {socket} = require('./socket/index.js');
+socket(server);
 
 //Mongo DB
 const mongoConnect = require('./utils/databases/mongo').mongoConnect;
@@ -52,16 +48,6 @@ process.on('uncaughtException', (error) => {
         process.exit(1);
     }
 });
-// process.on('uncaughtException', (ex) => {
-//     console.log('-----'+ex)
-//     logger.error("uncaughtException: "+ex)
-//     if(ex.code === 'EADDRINUSE' && ex.syscall === 'listen') process.exit();
-// })
-
-// process.on('unhandledRejection', (ex) => {
-//     console.log(ex);
-//     throw ex;
-// })
 
 app.use(helmet());
 app.use(morgan('combined'));
@@ -84,8 +70,6 @@ app.use((req, res, next) => {
 
 app.use(cors())
 
-// app.get('/', (req, res) => res.send(JSON.stringify('Indhi REST API Server')))
-
 app.use('/device', deviceRoutes);
 app.use('/restricted', groupRoutes);
 app.use('/restricted', categoryRoutes);
@@ -99,36 +83,24 @@ app.use('/internal', internalRoutes);
 
 app.use(undefinedRoutes);
 app.use(handlingErrorsMiddleware);
-// app.use(app.oauth.errorHandler());
 
 mongoConnect(() => {
-    //     console.log("\x1b[32m",'Mongo Database connected')
-//     console.log("-------");
-//     createMySqlPool().then(async () => {
-//         console.log("\x1b[32m",'Mysql Database connected')
-//         createInventoryMySqlPool().then(async () => {
-//             console.log("\x1b[32m",'Inventory mysql database connected');
-//             createPostgresPool().then(async () => {
-//                 console.log("\x1b[32m",'Postgres Database connected');
-            server.listen(config.app.port, config.app.ip, () => {
-                console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
-            });
-            console.log("-------");
-            socketIO.initializeSocketIOConnection(io)
-            startMqttConnection().then(async (status) => {
-                if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
-                else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');
-                console.log("\x1b[37m");
-            }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to MQTT server, error - %s',err)}));
-            // initializeFCMConnection().then(async () => {
-            //     console.log("\x1b[32m",'Initialized FCM connection');
-            // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
-            startTimeBasedSceneControl().then(async () => {
-                console.log("\x1b[32m",'Started time based scene handler');
-            }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not start time based scene handler, error - %s',err)}));
-//             }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to postgres Database, error - %s',err)}));
-//         }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to Inventory mysql Database, error - %s',err)}));
-//     }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to MySql Database, error - %s',err)}));
+    server.listen(config.app.port, config.app.ip, () => {
+        console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
+    });
+    console.log("-------");
+    socketIO.initializeSocketIOConnection(io)
+    startMqttConnection().then(async (status) => {
+        if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
+        else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');
+        console.log("\x1b[37m");
+    }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to MQTT server, error - %s',err)}));
+    // initializeFCMConnection().then(async () => {
+    //     console.log("\x1b[32m",'Initialized FCM connection');
+    // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
+    startTimeBasedSceneControl().then(async () => {
+        console.log("\x1b[32m",'Started time based scene handler');
+    }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not start time based scene handler, error - %s',err)}));
 }).catch(err => {console.log("Mongo Connection error", err)});  //TODO: Use logger utility
 
 module.exports = {
