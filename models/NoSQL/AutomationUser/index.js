@@ -28,7 +28,9 @@ class AutomationUser {
         .collection('automation_users')
         .updateOne({ _id: this._id }, { $set: this });
     } else {
-      dbOp = db.collection('automation_users').insertOne(this);
+      dbOp = db
+        .collection('automation_users')
+        .insertOne(this);
     }
     return dbOp
   }

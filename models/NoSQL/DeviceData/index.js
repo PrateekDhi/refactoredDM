@@ -35,7 +35,9 @@ class DeviceData {
         .collection('devices_data')
         .updateOne({ _id: this._id }, { $set: this });
     } else {
-      dbOp = db.collection('devices_data').insertOne(this);
+      dbOp = db
+        .collection('devices_data')
+        .insertOne(this);
     }
     return dbOp;
   }

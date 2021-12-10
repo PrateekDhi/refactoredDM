@@ -29,12 +29,15 @@ class Automation {
     const db = getDb();
     let dbOp;
     if (this._id) {
-      // Update the automation
+      // Updating the automation
       dbOp = db
         .collection('automations')
         .updateOne({ _id: this._id }, { $set: this });
     } else {
-      dbOp = db.collection('automations').insertOne(this);
+      // Inserting the automation
+      dbOp = db
+        .collection('automations')
+        .insertOne(this);
     }
     return dbOp;
   }
