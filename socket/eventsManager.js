@@ -92,22 +92,22 @@ const groupAndCategorySpecificEvent = (socket, roomString, data1, data2) => {
             groupService.checkGroupExistence(parsedData.groupId),
             categoryService.checkCategoryExistence(parsedData.groupId, parsedData.categoryId)
         ])
-        .then(results => {
-            if(!results[0]) throw new Error('Invalid group id');
-            if(!results[1]) throw new Error('Invalid category id');
-            return socket.join(roomString + ":" + parsedData.groupId + ":" + parsedData.categoryId);
-        })
-        .catch(error => {
-            //TODO: Log error;
-            if(error.message == 'No data in data1 after parse'){
+    })
+    .then(results => {
+        if(!results[0]) throw new Error('Invalid group id');
+        if(!results[1]) throw new Error('Invalid category id');
+        return socket.join(roomString + ":" + parsedData.groupId + ":" + parsedData.categoryId);
+    })
+    .catch(error => {
+        //TODO: Log error;
+        if(error.message == 'No data in data1 after parse'){
 
-            }else if(error.message == 'Invalid group id'){
+        }else if(error.message == 'Invalid group id'){
 
-            }else if(error.message == 'Invalid category id'){
+        }else if(error.message == 'Invalid category id'){
 
-            }
-            //default return case
-        })
+        }
+        //default return case
     })
 }
 
