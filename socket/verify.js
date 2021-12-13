@@ -13,6 +13,7 @@ module.exports = (socket, next) => {
     }
 }
 
+//TODO:
 const verifyToken = token => {
     
 }
