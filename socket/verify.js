@@ -1,7 +1,3 @@
-const verifyToken = token => {
-    
-}
-
 module.exports = (socket, next) => {
     if (socket.handshake.headers['authorization'] && socket.handshake.headers['authorization'].split(" ")[0] === 'Bearer') {
         verifyToken(socket.handshake.headers['authorization'].split(" ")[0] === 'Bearer')
@@ -15,4 +11,8 @@ module.exports = (socket, next) => {
         if(!socket.handshake.headers['authorization']) next(new Error('No authorization header'));
         else next(new Error('Malformed authorization header'));
     }
+}
+
+const verifyToken = token => {
+    
 }
