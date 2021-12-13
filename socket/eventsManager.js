@@ -1,12 +1,15 @@
 const cn = require('../utils/common');
 const groupService = require('../services/group');
+const categoryService = require('../services/category');
+const { parse } = require('dotenv');
 
 //Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
 //TODO: Can we condense down these event handlers to reduce code - user specific events, group specific events
 // exports.userSpecificEvent = function(data){
 
 // }
-
+//TODO: If we could some how get he name of the event which was triggered inside the event handler with 'this' we can replace all the exported function with simply specific event functions
+//this.eventNames() gives an array of all the events which cannot be used for this
 exports.groupListEvent = function(data){
     return userSpecificEvent(this, "groupList", data);
 }
@@ -58,24 +61,53 @@ const groupSpecificEvent = (socket, roomString, data) => {
         return groupService.checkGroupExistence(parsedData.groupId)        
     })
     .then(result => {
-        if(!result) return; //TODO: Log Invalid group id
+        if(!result) throw new Error('Invalid group id');
         return socket.join(roomString + ":" + parsedData.groupId);
     })
-    .catch(err => {return})//TODO: Log Error
+    .catch(error => {
+        //TODO: Log Error
+        if(error.message == 'Invalid group id'){
+
+        }
+        //default return case
+    })
 }
 
-//TODO: Pending, waiting for correction in logic from NK
 const groupAndCategorySpecificEvent = (socket, roomString, data1, data2) => {
-    if (!typeof (elem2) == "boolean" || (!typeof (elem1) == "string" || !elem1)) return; //TODO: Log error
-    if(!elem2) {
-        return [...socket.rooms]
-        .filter(room => {
-            if (room.split(":")[0] == roomString) {
-                return room.split(":")[2] != parsedData.categoryId;
-            }
-            return false;
+    if (!typeof (data2) == "boolean" || (!typeof (data1) == "string" || !data1)) return; //TODO: Log error
+    cn.parseAsync(data1)
+    .then(parsedData => {
+        if(!data2) {
+            return [...socket.rooms]
+            .filter(room => {
+                if (room.split(":")[0] == roomString) {
+                    return room.split(":")[2] != parsedData.categoryId;
+                }
+                return false;
+            })
+            .forEach(room => socket.leave(room));
+        }
+        if(!parsedData) throw new Error('No data in data1 after parse');
+        return Promise.all([
+            groupService.checkGroupExistence(parsedData.groupId),
+            categoryService.checkCategoryExistence(parsedData.groupId, parsedData.categoryId)
+        ])
+        .then(results => {
+            if(!results[0]) throw new Error('Invalid group id');
+            if(!results[1]) throw new Error('Invalid category id');
+            return socket.join(roomString + ":" + parsedData.groupId + ":" + parsedData.categoryId);
         })
-        .forEach(room => socket.leave(room));
-    }
+        .catch(error => {
+            //TODO: Log error;
+            if(error.message == 'No data in data1 after parse'){
+
+            }else if(error.message == 'Invalid group id'){
+
+            }else if(error.message == 'Invalid category id'){
+
+            }
+            //default return case
+        })
+    })
 }
 

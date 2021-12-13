@@ -1,12 +1,14 @@
 const { Server } = require('socket.io');
 //TODO: import logger
-const verifySocketConnection = require('./auth');
+const verifySocketConnection = require('./verify');
 const eventsManager = require('./eventsManager');
+
+let io;
 
 // const { ALLOWLIST_HOSTS, REDIS_PORT, REDIS_HOST } = config;
 
 module.exports = app => {
-    const io = new Server(app, {
+    io = new Server(app, {
         cors: {
             origin: "*",
             methods: ["GET", "POST"],
