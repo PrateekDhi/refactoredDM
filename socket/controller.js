@@ -2,6 +2,8 @@ const { Server } = require('socket.io');
 //TODO: import logger
 const verifySocketConnection = require('./verify');
 const eventsManager = require('./eventsManager');
+const socketService = require('./service')
+const { socket } = require('.');
 
 let io;
 
@@ -16,8 +18,8 @@ module.exports = app => {
             credentials: true
         }
     })
-
     //TODO: Log ('Socketio initialised!');
+    socketService.setIO(io);
 
     io
     .use(verifySocketConnection)

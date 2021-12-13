@@ -1,7 +1,6 @@
 const cn = require('../utils/common');
 const groupService = require('../services/group');
 const categoryService = require('../services/category');
-const { parse } = require('dotenv');
 
 //Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
 //TODO: Can we condense down these event handlers to reduce code - user specific events, group specific events
