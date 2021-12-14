@@ -17,6 +17,9 @@ socket(server);
 //Mongo DB
 const mongoConnect = require('./utils/databases/mongo').mongoConnect;
 
+//APP DB
+const {initiateMySqlPool} = require('./utils/databases/mysql');
+
 //Routes Import
 const groupRoutes = require('./routes/group')(express.Router(), app);
 const categoryRoutes = require('./routes/category')(express.Router(), app);
@@ -84,24 +87,31 @@ app.use('/internal', internalRoutes);
 app.use(undefinedRoutes);
 app.use(handlingErrorsMiddleware);
 
-mongoConnect(() => {
-    server.listen(config.app.port, config.app.ip, () => {
-        console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
-    });
-    console.log("-------");
-    socketIO.initializeSocketIOConnection(io)
-    startMqttConnection().then(async (status) => {
-        if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
-        else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');
-        console.log("\x1b[37m");
-    }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to MQTT server, error - %s',err)}));
-    // initializeFCMConnection().then(async () => {
-    //     console.log("\x1b[32m",'Initialized FCM connection');
-    // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
-    startTimeBasedSceneControl().then(async () => {
-        console.log("\x1b[32m",'Started time based scene handler');
-    }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not start time based scene handler, error - %s',err)}));
-}).catch(err => {console.log("Mongo Connection error", err)});  //TODO: Use logger utility
+try{
+    mongoConnect(() => {
+        console.log("\x1b[32m",'Mongo Database connected')
+        initiateMySqlPool().then(response => {
+            if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully')
+            else console.log("\x1b[32m",'MySql Pool Initialization response - ', response)
+            server.listen(config.app.port, config.app.ip, () => {
+                console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
+            });
+            // startMqttConnection().then(async (status) => {
+            //     if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
+            //     else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');
+            //     console.log("\x1b[37m");
+            // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to MQTT server, error - %s',err)}));
+            // // initializeFCMConnection().then(async () => {
+            // //     console.log("\x1b[32m",'Initialized FCM connection');
+            // // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
+            // startTimeBasedSceneControl().then(async () => {
+            //     console.log("\x1b[32m",'Started time based scene handler');
+            // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not start time based scene handler, error - %s',err)}));
+        })
+    })
+}catch(err){
+    console.log("\x1b[31m",'Could not connect to Mongo Database, error - %s',err)
+}
 
 module.exports = {
   app

@@ -34,6 +34,7 @@ class SocketService {
     }
     
     sendDataToMultipleUsers(dataType, userIds, data, deviceId, groupId, categoryId) {
+        console.log('Sending data now')
         switch (dataType) {
 
             case "elementDeletion":

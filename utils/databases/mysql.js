@@ -36,6 +36,8 @@ exports.initiateMySqlPool = () => {
 
         pool.getConnection((error, con) =>
         {
+            // console.log(error);
+            // console.log(con);
             if(error){
                 return reject({"status":"failed", "error":`MySQL error. ${error}`});
             }
@@ -56,6 +58,7 @@ exports.initiateMySqlPool = () => {
             {
                 return reject({"status":"failed", "error":`MySQL error. ${err}`});
             }
+            // return resolve({"status":"failed", "error":"Error connecting to MySQL."});
         });
     });
 }

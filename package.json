@@ -1,7 +1,7 @@
 {
-  "name": "refactorediam",
+  "name": "refactoreddm",
   "version": "1.0.0",
-  "description": "Refactored version of IAM",
+  "description": "Refactored version of DM",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PrateekDhi/refactoredIAM.git"
+    "url": "git+https://github.com/PrateekDhi/refactoredDM.git"
   },
   "author": "Prateek Shukla",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PrateekDhi/refactoredIAM/issues"
+    "url": "https://github.com/PrateekDhi/refactoredDM/issues"
   },
-  "homepage": "https://github.com/PrateekDhi/refactoredIAM#readme",
+  "homepage": "https://github.com/PrateekDhi/refactoredDM#readme",
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
     "async": "^3.2.1",

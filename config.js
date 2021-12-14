@@ -69,11 +69,11 @@ module.exports = {
         use_unified_topology_setting: process.env.MONGO_USE_UNIFIED_TOPOLOGY_SETTING
     },
     mqtt_client_postgres_db: {
-        host: MQTT_POSTGRES_HOST,
-        port: MQTT_POSTGRES_PORT,
-        user: MQTT_POSTGRES_USER,
-        password: MQTT_POSTGRES_PASSWORD,
-        database: MQTT_POSTGRES_DB_NAME
+        host: process.env.MQTT_POSTGRES_HOST,
+        port: process.env.MQTT_POSTGRES_PORT,
+        user: process.env.MQTT_POSTGRES_USER,
+        password: process.env.MQTT_POSTGRES_PASSWORD,
+        database: process.env.MQTT_POSTGRES_DB_NAME
     },
     email_gateway_api_key: process.env.EMAIL_GATEWAY_API_KEY,
     sms_gateway:{
