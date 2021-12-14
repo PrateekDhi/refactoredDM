@@ -21,6 +21,10 @@ exports.Unauthorized = require('./unauthorized');
 exports.UndefinedRoute = require('./undefined_route');
 exports.UserAlreadyRegistered = require('./user_already_registered');
 exports.UserDoesNotExist = require('./user_does_not_exist');
+exports.InvalidSocketData = require('./invalid_socket_data');
+exports.SocketDisconnectionError = require('./socket_disconnection_error');
+exports.IncorrectGroupId = require('./incorrect_group_id');
+exports.IncorrectCategoryId = require('./incorrect_category_id');
 
 // //Divisions of error
 // exports.fatalErrors = [InternalServerError,DatabaseServerError]

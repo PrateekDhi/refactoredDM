@@ -2,8 +2,9 @@ const { Server } = require('socket.io');
 //TODO: import logger
 const verifySocketConnection = require('./verify');
 const eventsManager = require('./eventsManager');
-const socketService = require('./service')
-const { socket } = require('.');
+const socketService = require('./service');
+const definedErrors = require('../errors');
+const errorHandler = require('../utils/handlers/error');
 
 let io;
 
@@ -38,12 +39,16 @@ module.exports = app => {
         socket.on('groupMembers', eventsManager.groupMembersEvent);
         socket.on('groupCategories', eventsManager.groupCategoriesEvent);
         socket.on('categorisedDevices', eventsManager.categorisedDevicesEvent);
-        socket.on('disconnect', data => {
+        socket.on('disconnect', async error => {
+            //TODO: Log error
+            let caughtError = new definedErrors.SocketDisconnectionError();
             sockets[socket.handshake.userId]
             .splice(sockets[socket.handshake.userId]
                 .map(el => el.socketId)
                 .indexOf(socket.id), 1);
             if (sockets[socket.handshake.userId].length == 0) delete sockets[socket.handshake.userId];
+            caughtError.setAdditionalDetails(error);
+            await errorHandler.handleError(caughtError);
         });
     })
 }

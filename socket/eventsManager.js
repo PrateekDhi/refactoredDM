@@ -1,6 +1,8 @@
 const cn = require('../utils/common');
+const definedErrors = require('../errors');
 const groupService = require('../services/group');
 const categoryService = require('../services/category');
+const errorHandler = require('../utils/handlers/error');
 
 //Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
 //TODO: Can we condense down these event handlers to reduce code - user specific events, group specific events
@@ -41,9 +43,13 @@ exports.categorisedDevicesEvent = function(data1, data2){
     return groupAndCategorySpecificEvent(this, "categorisedDevices", data1, data2);
 }
 
-const userSpecificEvent = (socket, roomString, data) => {
+const userSpecificEvent = async (socket, roomString, data) => {
     if(!data) return socket.leave(roomString + ":" + socket.handshake.userId);
-    if(!typeof (elem) == "boolean") return; //TODO: Log error
+    if(!typeof (elem) == "boolean") {
+        let caughtError = new definedErrors.InvalidSocketData();
+        caughtError.setMessage('Data sent for user specific event was not boolean');
+        return await errorHandler.handleError(caughtError);
+    }
     return socket.join(roomString + ":" + socket.handshake.userId);
 }
 
@@ -60,14 +66,18 @@ const groupSpecificEvent = (socket, roomString, data) => {
         return groupService.checkGroupExistence(parsedData.groupId)        
     })
     .then(result => {
-        if(!result) throw new Error('Invalid group id');
+        if(!result) throw new Error('Incorrect group id');
         return socket.join(roomString + ":" + parsedData.groupId);
     })
-    .catch(error => {
-        //TODO: Log Error
-        if(error.message == 'Invalid group id'){
-
+    .catch(async error => {
+        let caughtError
+        if(error.message == 'Incorrect group id'){
+            caughtError = new definedErrors.IncorrectGroupId();
+            return await errorHandler.handleError(caughtError);
         }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return await errorHandler.handleError(caughtError);
         //default return case
     })
 }
@@ -93,19 +103,27 @@ const groupAndCategorySpecificEvent = (socket, roomString, data1, data2) => {
         ])
     })
     .then(results => {
-        if(!results[0]) throw new Error('Invalid group id');
-        if(!results[1]) throw new Error('Invalid category id');
+        if(!results[0]) throw new Error('Incorrect group id');
+        if(!results[1]) throw new Error('Incorrect category id');
         return socket.join(roomString + ":" + parsedData.groupId + ":" + parsedData.categoryId);
     })
-    .catch(error => {
+    .catch(async error => {
+        let caughtError;
         //TODO: Log error;
         if(error.message == 'No data in data1 after parse'){
-
-        }else if(error.message == 'Invalid group id'){
-
-        }else if(error.message == 'Invalid category id'){
-
+            caughtError = new definedErrors.InvalidSocketData();
+            caughtError.setMessage('No data in data1 after parse during group and category specific event');
+            return await errorHandler.handleError(caughtError);
+        }else if(error.message == 'Incorrect group id'){
+            caughtError = new definedErrors.IncorrectGroupId();
+            return await errorHandler.handleError(caughtError);
+        }else if(error.message == 'Incorrect category id'){
+            caughtError = new definedErrors.IncorrectCategoryId();
+            return await errorHandler.handleError(caughtError);
         }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return await errorHandler.handleError(caughtError);
         //default return case
     })
 }

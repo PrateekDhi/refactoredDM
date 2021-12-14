@@ -42,14 +42,6 @@ class Automation {
     return dbOp;
   }
 
-  static fetchAll() {
-    const db = getDb();
-    return db
-      .collection('automations')
-      .find()
-      .toArray()
-  }
-
   static findById(id) {
     const db = getDb();
     return db

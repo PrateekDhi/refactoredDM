@@ -28,7 +28,8 @@ class ApplicationError extends Error{
     }
 
     setAdditionalDetails(additionalDetails) {
-        this.additionalDetails = additionalDetails;
+        if(additionalDetails instanceof Error) this.additionalDetails = additionalDetails.message;
+        else this.additionalDetails = additionalDetails;
     }
 }
 
