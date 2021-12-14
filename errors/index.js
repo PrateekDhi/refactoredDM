@@ -25,6 +25,7 @@ exports.InvalidSocketData = require('./invalid_socket_data');
 exports.SocketDisconnectionError = require('./socket_disconnection_error');
 exports.IncorrectGroupId = require('./incorrect_group_id');
 exports.IncorrectCategoryId = require('./incorrect_category_id');
+exports.IncorrectSocketIOToken = require('./incorrect_socketio_token');
 
 // //Divisions of error
 // exports.fatalErrors = [InternalServerError,DatabaseServerError]

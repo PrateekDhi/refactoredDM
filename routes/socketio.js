@@ -1,6 +1,6 @@
 // const validationMiddleware = require('../middlewares/validationMiddleware');
 const c = require('../utils/handlers/controller');
-const {socketService} = require('../socket');
+// const {socketService} = require('../socket'); //FOR SOCKET CONNECTION TESTING
 
 //Services
 
@@ -13,8 +13,9 @@ const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
-    router.post('/testSocket',(req,res,next) => {
-        
-    })
+    // router.post('/testSocket',(req,res,next) => {
+    //     socketService.sendDataToMultipleUsers('groupList', ['abcd1234'], [{"groupId":"dawfafafa","groupName":"afbsnvabhg"},{"groupId":"vkcvbvb","groupName":"dkjjsfhgjasfh"}], null, null, null);
+    //     res.status(200).json({"message":"OK"})
+    // })     //FOR SOCKET CONNECTION TESTING
     return router
 }

@@ -7,6 +7,7 @@ const definedErrors = require('../errors');
 const errorHandler = require('../utils/handlers/error');
 
 let io;
+let sockets = {};
 
 // const { ALLOWLIST_HOSTS, REDIS_PORT, REDIS_HOST } = config;
 
@@ -22,6 +23,7 @@ module.exports = app => {
     //TODO: Log ('Socketio initialised!');
     socketService.setIO(io);
 
+    //TODO: Error handling middleware for socket io
     io
     .use(verifySocketConnection)
     .on('connection', socket => {
@@ -48,6 +50,7 @@ module.exports = app => {
                 .indexOf(socket.id), 1);
             if (sockets[socket.handshake.userId].length == 0) delete sockets[socket.handshake.userId];
             caughtError.setAdditionalDetails(error);
+            caughtError.setType('info');
             await errorHandler.handleError(caughtError);
         });
     })
