@@ -17,20 +17,13 @@
 const serverErrors = require('../../errors');
 const ApplicationError = serverErrors.ApplicationError;
 
-const cn = require('../common')
-const today = cn.formattedTodaysDate()
-const fs = require('fs')
-const Logger= require('../logger');
-let logger;
+const logger= require('../logger');
 class ErrorHandler {
 
     async handleError(error) {
         // delete error.type;
         // console.log('--------------------------')
         // console.log(error.type)
-        logger = new Logger()
-        if(!(fs.existsSync(`logs/error_${today}.log`))){
-        }
         switch(error.type){
             case 'trace':
                 await logger.trace(

@@ -26,6 +26,9 @@ exports.SocketDisconnectionError = require('./socket_disconnection_error');
 exports.IncorrectGroupId = require('./incorrect_group_id');
 exports.IncorrectCategoryId = require('./incorrect_category_id');
 exports.IncorrectSocketIOToken = require('./incorrect_socketio_token');
+exports.MongoConnectionError = require('./mongo_connection_error');
+exports.MqttConnectionError = require('./mqtt_connection_error');
+exports.MysqlConnectionError = require('./mysql_connection_error');
 
 // //Divisions of error
 // exports.fatalErrors = [InternalServerError,DatabaseServerError]

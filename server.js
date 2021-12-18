@@ -10,8 +10,12 @@ const morgan = require('morgan');
 const cors = require('cors');
 const server = require('http').createServer(app);
 
+const {initializeMQTTClient} = require('./mqtt');
+
 const config = require('./config');
-const {socket} = require('./socket/index.js');
+const definedErrors = require('./errors');
+const ApplicationError = definedErrors.ApplicationError;
+const {socket} = require('./socket');
 socket(server);
 
 //Mongo DB
@@ -46,8 +50,9 @@ process.on('unhandledRejection', (reason, promise) => {
 });
     
 process.on('uncaughtException', (error) => {
+    console.log('eeeeeeeeeeee')
     errorHandler.handleError(error);
-    if (!errorHandler.isTrustedError(error)) {
+    if (!errorHandler.isTrustedError(error) || error.type == 'fatal') {
         process.exit(1);
     }
 });
@@ -90,11 +95,20 @@ app.use(handlingErrorsMiddleware);
 try{
     mongoConnect(() => {
         console.log("\x1b[32m",'Mongo Database connected')
-        initiateMySqlPool().then(response => {
+        initiateMySqlPool()
+        .then(response => {
             if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully')
-            else console.log("\x1b[32m",'MySql Pool Initialization response - ', response)
+            else console.log("\x1b[32m",'MySql Pool Initialization response - ', response);
             server.listen(config.app.port, config.app.ip, () => {
                 console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
+            });
+            //TODO: Add FCM Initialization and time based scene control
+            Promise.allSettled([
+                initializeMQTTClient()
+            ])
+            .then(values => {
+                if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
+                else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
             });
             // startMqttConnection().then(async (status) => {
             //     if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
@@ -108,9 +122,25 @@ try{
             //     console.log("\x1b[32m",'Started time based scene handler');
             // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not start time based scene handler, error - %s',err)}));
         })
+        .catch(error => {
+            const caughtError = new definedErrors.MysqlConnectionError();
+            caughtError.setAdditionalDetails(error);
+            caughtError.setType('fatal');
+            throw caughtError;
+        })
     })
 }catch(err){
-    console.log("\x1b[31m",'Could not connect to Mongo Database, error - %s',err)
+    if(err instanceof ApplicationError) errorHandler.handleError(err);
+    else{
+        const caughtError = new definedErrors.MongoConnectionError();
+        caughtError.setAdditionalDetails(error);
+        caughtError.setType('fatal');
+        throw caughtError;
+        // if (!errorHandler.isTrustedError(error)) {
+        //     process.exit(1);
+        // }
+    }
+    // console.log("\x1b[31m",'Could not connect to Mongo Database, error - %s',err)
 }
 
 module.exports = {

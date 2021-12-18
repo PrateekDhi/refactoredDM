@@ -50,7 +50,7 @@ exports.initiateMySqlPool = () => {
                         con.release();
                         db = pool.promise();
                         if(err) return reject({"status":"failed", "error":`MySQL error. ${err}`});
-                        return resolve({"status":"success", "message":"MySQL connected.", "con":"Connection done"});
+                        return resolve({"status":"success", "message":"MySQL connected."});
                     })
                 }
             }
