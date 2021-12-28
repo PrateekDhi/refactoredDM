@@ -12,5 +12,7 @@ const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
+    // router.post('/fetchGroupCategories',checkTokenAuthorization,validationMiddleware,restrictedController.fetchGroupCategories);
+
     return router
 }

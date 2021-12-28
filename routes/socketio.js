@@ -17,5 +17,7 @@ module.exports = (router, app) => {
     //     socketService.sendDataToMultipleUsers('groupList', ['abcd1234'], [{"groupId":"dawfafafa","groupName":"afbsnvabhg"},{"groupId":"vkcvbvb","groupName":"dkjjsfhgjasfh"}], null, null, null);
     //     res.status(200).json({"message":"OK"})
     // })     //FOR SOCKET CONNECTION TESTING
+    // router.post('/getSocketIOConnectionToken', checkTokenAuthorization, restrictedController.getSocketIOConnectionToken);
+
     return router
 }

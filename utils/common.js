@@ -15,7 +15,8 @@
  * 
 **/
 
-const crypto = require('crypto')
+const crypto = require('crypto');
+const Promise = require('bluebird'); //To promisify JSON.parse
 
 /**
  * 
@@ -281,3 +282,5 @@ exports.toBoolean = (value) => {
         strValue !== 'undefined') ? '1' : strValue;
     return strValue === 'true' || strValue === '1' ? true : false
 };
+
+exports.parseAsync = Promise.method(JSON.parse);

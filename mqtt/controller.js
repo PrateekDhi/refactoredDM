@@ -7,7 +7,7 @@ const eventsManager = require('./eventsManager');
 const mqttService = require('./service');
 
 const MQTT_LINK = config.mqtt_server_client.link;
-const MQTT_OPTIONS = config.mqtt_server_client.mqtt_options;
+const MQTT_OPTIONS = config.mqtt_server_client.options;
 const MQTT_SERVER_CONNECTION_STATUS_TOPIC = "serverStatus";
 const MQTT_SERVER_SUCCESSFULL_CONNECTION_MESSAGE = "Server connected to mqtt";
 const MQTT_SERVER_STARTUP_TEST_MESSAGE = "Server connected";

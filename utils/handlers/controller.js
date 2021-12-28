@@ -18,7 +18,7 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
     const boundParams = params ? params(req, res, next) : []; //Checking if params were sent, if not setting to empty params
     try {
       const result = await promise(...boundParams);
-      return res.json(result || { code: 200, message: 'OK' });
+      return res.status(200).json(result || { code: 200, message: 'OK' });
     } catch (error) {
       next(error);
     }

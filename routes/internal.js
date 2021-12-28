@@ -12,5 +12,11 @@ const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
+    // router.use(authenticateInternalRequest);
+    // router.post('/userGeneralDataChange', internalController.userGeneralDataChange);
+    // router.post('/userProfileDataChange', internalController.userProfileDataChange);
+    // router.post('/userDefaultNotificationSettings', internalController.userDefaultNotificationSettings);
+    // router.post('/userProfilePhotoChange', internalController.userProfilePhotoChange);
+
     return router
 }

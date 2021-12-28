@@ -34,6 +34,8 @@ const noteRoutes = require('./routes/note')(express.Router(), app);
 const notificationRoutes = require('./routes/notification')(express.Router(), app);
 const socketIORoutes = require('./routes/socketio')(express.Router(), app);
 const deviceRoutes = require('./routes/device')(express.Router(), app);
+const groupUserRoutes = require('./routes/groupUser')(express.Router(), app);
+const subscriptionRoutes = require('./routes/subscription')(express.Router(), app);
 const internalRoutes = require('./routes/internal')(express.Router(), app);
 const undefinedRoutes = require('./routes/undefined');
 
@@ -85,6 +87,8 @@ app.use('/restricted', deviceManagementRoutes);
 app.use('/restricted', sceneRoutes);
 app.use('/restricted', automationRoutes);
 app.use('/restricted', noteRoutes);
+app.use('/restricted', groupUserRoutes);
+app.use('/restricted', subscriptionRoutes);
 app.use('/restricted', notificationRoutes);
 app.use('/restricted', socketIORoutes);
 app.use('/internal', internalRoutes);

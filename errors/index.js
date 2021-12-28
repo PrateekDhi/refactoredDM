@@ -29,7 +29,8 @@ exports.IncorrectSocketIOToken = require('./incorrect_socketio_token');
 exports.MongoConnectionError = require('./mongo_connection_error');
 exports.MqttConnectionError = require('./mqtt_connection_error');
 exports.MysqlConnectionError = require('./mysql_connection_error');
-
-// //Divisions of error
-// exports.fatalErrors = [InternalServerError,DatabaseServerError]
+exports.InvalidMqttPayloadError = require('./invalid_mqtt_payload');
+exports.InvalidMqttTopic = require('./invalid_mqtt_topic');
+exports.IncorrectDeviceTopic = require('./incorrect_device_topic');
+exports.NonOnboardedDeviceSendingMQTTMessage = require('./non_onboarded_device_sending_mqtt_message');
 
