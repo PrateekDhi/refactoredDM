@@ -1,5 +1,6 @@
 // const validationMiddleware = require('../middlewares/validationMiddleware');
 const c = require('../utils/handlers/controller');
+const checkTokenAuthorization = require('../authorization/UserAuth');
 
 //Services
 
