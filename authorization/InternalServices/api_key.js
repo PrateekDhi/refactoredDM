@@ -5,7 +5,7 @@ const validations = require('./validate');
 const definedErrors = require('../../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
-module.exports = (req,res,next) => {
+module.exports = (req, res, next) => {
     validationResult = validations.validateAPIKeyHeader(req.header('X-API-KEY'));
     if(!validationResult.valid){
         let caughtError;

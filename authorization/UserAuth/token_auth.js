@@ -6,7 +6,7 @@ const internalHttpsRequestHelper = require('../../utils/helpers/internalHttpsReq
 const definedErrors = require('../../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
-module.exports = (req,res,next) => {
+module.exports = (req, res, next) => {
     validationResult = validations.validateAuthorizationHeader(req.header('Authorization'));
     if(!validationResult.valid){
         let caughtError;
