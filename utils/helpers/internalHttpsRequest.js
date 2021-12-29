@@ -39,7 +39,7 @@ const CORPORATE_DEFAULT_OPTIONS = {
 }
 
 module.exports = (server, path, method, additionalHeaders, bodyData) => {
-    return new Promise(function(resolve,reject){
+    return new Promise((resolve,reject) => {
         if(!server || !path || !method) {
             const caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails("https request helper needs server, path and method, got - server-", server, ", path-", path, ", method-", method);
@@ -64,9 +64,9 @@ module.exports = (server, path, method, additionalHeaders, bodyData) => {
         if(!headers || !options){
             const caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails("Failed to set header and/or options, headers -", headers, ", options -", options);
-            return reject(caughtError)
+            return reject(caughtError);
         }
-        const reqs = https.request(options, function(resp){
+        const reqs = https.request(options,(resp) => {
             let body = '';
             // console.log('STATUS: ' + resp.statusCode);
             // console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -75,18 +75,21 @@ module.exports = (server, path, method, additionalHeaders, bodyData) => {
                 body += chunk.toString();
                 // console.log('BODY: '+body);
             });
-            resp.on('end', function(){
+            resp.on('end', () => {
                 //No more data in response
                 parseAsync(body).then(function(parsedData){
                     parsedData.statusCode = resp.statusCode;  //Because we will also need status code on the caller
-                    resolve(parsedData);
+                    return resolve(parsedData);
                 }).catch((err) => reject(err));
             });
         })
         if(bodyData != null) reqs.write(JSON.stringify(bodyData));
     
-        reqs.on('error', function(e){
-            console.error(`Problem with token validation request: ${e}`);
+        reqs.on('error', (e) => {
+            // console.error(`Problem with token validation request: ${e}`);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails("Internal request failed with Error -", e);
+            return reject(caughtError);
         });
     
         reqs.end();
