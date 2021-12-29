@@ -16,14 +16,14 @@ exports.messageEvent = function(topic, payload){
     if(![2,3].includes(topic.split('/').length)){
         const caughtError = new definedErrors.InvalidMqttTopic();
         caughtError.setMessage("Invalid MQTT Topic");
-        caughtError.setAdditionalDetails("Topic - "+topic);
+        caughtError.setAdditionalDetails("Topic - " + topic);
         caughtError.setType('info');
         return errorHandler.handleError(caughtError);
     }
     if(payload == null){
         const caughtError = new definedErrors.InvalidMqttPayloadError();
         caughtError.setMessage("Empty payload received from MQTT Topic");
-        caughtError.setAdditionalDetails("Topic - "+topic);
+        caughtError.setAdditionalDetails("Topic - " + topic);
         caughtError.setType('info');
         return errorHandler.handleError(caughtError);
     }
@@ -35,7 +35,7 @@ exports.messageEvent = function(topic, payload){
         if(!checkResults[0]) {
             const caughtError = new definedErrors.IncorrectDeviceTopic();
             caughtError.setMessage("Device with this topic does not exist in the database");
-            caughtError.setAdditionalDetails("Topic - "+topic);
+            caughtError.setAdditionalDetails("Topic - " + topic);
             caughtError.setType('info');
             throw caughtError;
         }
@@ -56,7 +56,7 @@ exports.messageEvent = function(topic, payload){
             if(!checkResult){
                 const caughtError = new definedErrors.NonOnboardedDeviceSendingMQTTMessage();
                 caughtError.setMessage("Device with this topic is not onboarded, should not be sending data");
-                caughtError.setAdditionalDetails("Topic - "+topic, "Payload - "+parsedData);
+                caughtError.setAdditionalDetails("Topic - " + topic + "Payload - " + parsedData);
                 caughtError.setType('warning');
                 throw caughtError;
             }

@@ -42,36 +42,37 @@ module.exports = (server, path, method, additionalHeaders, bodyData) => {
     return new Promise((resolve,reject) => {
         if(!server || !path || !method) {
             const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("https request helper needs server, path and method, got - server-", server, ", path-", path, ", method-", method);
+            caughtError.setAdditionalDetails("https request helper needs server, path and method, got - server-" + server + ", path-" + path + ", method-" + method);
             return reject(caughtError)
         }
         let headers;
         let options;
         // const postData = JSON.stringify(bodyData);
-        //Setting HEADERS
+        //Setting request HEADERS to be added inside options
         if(server === 'iam') headers = Object.assign({}, DEFAULT_HEADERS, IAM_DEFAULT_HEADERS, additionalHeaders);
         else if(server === 'developer') headers = Object.assign({}, DEFAULT_HEADERS, DEVELOPER_DEFAULT_HEADERS, additionalHeaders);
         else if(server === 'corporate') headers = Object.assign({}, DEFAULT_HEADERS, CORPORATE_DEFAULT_HEADERS, additionalHeaders);
     
-        //Setting HEADER for request with request body
+        //Setting request HEADER for request with request body or without one
         if(bodyData != null) headers = Object.assign({}, headers, {'Content-Length': Buffer.byteLength(JSON.stringify(bodyData))});
         else headers = Object.assign({}, headers, {'Content-Length': 0});
     
-        //Setting OPTIONS
+        //Setting OPTIONS for the request
         if(server === 'iam') options = Object.assign({}, IAM_DEFAULT_OPTIONS, {path, method, headers});
-        if(server === 'developer') options = Object.assign({}, IAM_DEFAULT_OPTIONS, {path, method, headers});
-        if(server === 'corporate') options = Object.assign({}, IAM_DEFAULT_OPTIONS, {path, method, headers});
+        if(server === 'developer') options = Object.assign({}, DEVELOPER_DEFAULT_OPTIONS, {path, method, headers});
+        if(server === 'corporate') options = Object.assign({}, CORPORATE_DEFAULT_OPTIONS, {path, method, headers});
         if(!headers || !options){
             const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("Failed to set header and/or options, headers -", headers, ", options -", options);
+            caughtError.setAdditionalDetails("Failed to set header and/or options, headers -" + headers + ", options -" + options);
             return reject(caughtError);
         }
-        const reqs = https.request(options,(resp) => {
+        const reqs = https.request(options, (resp) => {
             let body = '';
             // console.log('STATUS: ' + resp.statusCode);
             // console.log('HEADERS: ' + JSON.stringify(res.headers));
             resp.setEncoding('utf8');
             resp.on('data', function(chunk){
+                //concatinating data chunks
                 body += chunk.toString();
                 // console.log('BODY: '+body);
             });
@@ -88,7 +89,7 @@ module.exports = (server, path, method, additionalHeaders, bodyData) => {
         reqs.on('error', (e) => {
             // console.error(`Problem with token validation request: ${e}`);
             const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("Internal request failed with Error -", e);
+            caughtError.setAdditionalDetails("Internal request failed with Error -" + e);
             return reject(caughtError);
         });
     

@@ -12,10 +12,10 @@ module.exports = (req,res,next) => {
         let caughtError;
         if(validationResult.error == "No authorization header") {
             caughtError = new definedErrors.NoAuthorizationHeader();
-            caughtError.setAdditionalDetails("Authorization Header -", req.header('Authorization'));
+            caughtError.setAdditionalDetails("Authorization Header -" + req.header('Authorization'));
         } else if(validationResult.error == "Malformed authorization header"){
             caughtError = new definedErrors.InvalidRequest();
-            caughtError.setAdditionalDetails("Authorization Header -", req.header('Authorization'));
+            caughtError.setAdditionalDetails("Authorization Header -" + req.header('Authorization'));
         } else {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(validationResult.error);
@@ -32,7 +32,7 @@ module.exports = (req,res,next) => {
             if(data.code && data.message && data.name && data.statusCode) 
                 return res.status(data.statusCode).json({ code: data.code, message: data.message,  name: data.name});
             const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("Internal request for validating user token failed, response data - ", data);
+            caughtError.setAdditionalDetails("Internal request for validating user token failed, response data - " + data);
             return next(caughtError);
         }
     })
