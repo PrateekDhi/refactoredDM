@@ -1,6 +1,7 @@
 // const validationMiddleware = require('../middlewares/validationMiddleware');
 const c = require('../utils/handlers/controller');
 const checkTokenAuthorization = require('../authorization/UserAuth');
+const validationMiddleware = require('../middlewares/requestValidation');
 
 //Services
 
@@ -13,6 +14,10 @@ const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
+    router.post('/changeAutomationActivationStatus', validationMiddleware, (req, res, next) => {
+        console.log('here')
+        res.json({message: 'done'});
+    });
     // router.post('/changeAutomationActivationStatus',checkTokenAuthorization, validationMiddleware,restrictedController.changeAutomationActivationStatus);
     // router.post('/createTimeBasedAutomation',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,restrictedController.createTimeBasedAutomation);
     // router.post('/updateTimeBasedAutomation',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,restrictedController.updateTimeBasedAutomation);

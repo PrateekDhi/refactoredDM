@@ -34,4 +34,5 @@ exports.InvalidMqttTopic = require('./invalid_mqtt_topic');
 exports.IncorrectDeviceTopic = require('./incorrect_device_topic');
 exports.NonOnboardedDeviceSendingMQTTMessage = require('./non_onboarded_device_sending_mqtt_message');
 exports.NoApiKeyHeader = require('./no_api_key_header');
+exports.InvalidRequestContents = require('./invalid_request_contents');
 

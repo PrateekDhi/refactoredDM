@@ -107,13 +107,13 @@ try{
                 console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
             });
             //TODO: Add FCM Initialization and time based scene control
-            Promise.allSettled([
-                initializeMQTTClient()
-            ])
-            .then(values => {
-                if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
-                else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
-            });
+            // Promise.allSettled([
+            //     initializeMQTTClient()
+            // ])
+            // .then(values => {
+            //     if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
+            //     else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
+            // });
             // startMqttConnection().then(async (status) => {
             //     if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
             //     else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');

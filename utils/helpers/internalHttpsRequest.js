@@ -1,6 +1,6 @@
 const https = require('https');
 
-const config = require('../config').development; 
+const config = require('../../config');
 const definedErrors = require('../../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
