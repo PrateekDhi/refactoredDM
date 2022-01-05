@@ -1,6 +1,6 @@
 // const validationMiddleware = require('../middlewares/validationMiddleware');
 const c = require('../utils/handlers/controller');
-const checkTokenAuthorization = require('../authorization/UserAuth');
+const checkTokenAuthorization = require('../authorization/UserAuthentication');
 const validationMiddleware = require('../middlewares/requestValidation');
 const stringifiedObjectParser = require('../middlewares/stringifiedObjectParser');
 
