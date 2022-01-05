@@ -4,7 +4,8 @@ const groupService = require('../../services/group');
 //Erros
 const definedErrors = require('../../errors');
 
-module.exports = (roles) => {
+module.exports = (roles, groupId, userId) => {
+    //TODO: Add additional authorization logic for automation and scene users
     //Validating roles array sent for 
     validationResult = validations.validateRolesArray(roles);
     if(!validationResult.valid){
@@ -20,7 +21,7 @@ module.exports = (roles) => {
         // authorize based on user role
         (req, res, next) => {
             
-            groupService.getUserGroupRole(req.body.groupId)
+            groupService.getUserGroupRole(groupId, userId)
             .then(role => {
                 if (!roles.includes(role)) {
                     // If user does not have correct authorization in the group then the request fails
