@@ -42,6 +42,7 @@ module.exports = (req, res, next) => {
             //Group with the id given in request body does not exist
         }
         results.shift();  //After this results will only contain elements starting from index = 1
+        if(results[0] === true) results.push(req.body.groupId); //The groupId in the request body should be equal to all the group ids in the array
         if(!cn.allArrayElementsEqual(results)){
             //Entities in the request body do not belong to the same group
         }
