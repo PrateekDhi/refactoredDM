@@ -1,4 +1,6 @@
 module.exports = {
     Owner: 'Owner',
-    Member: 'Member'
+    Member: 'Member',
+    AutomationCreator: 'AutomationCreator',
+    SceneCreator: 'SceneCreator'
 }

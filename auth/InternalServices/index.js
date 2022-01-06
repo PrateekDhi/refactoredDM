@@ -3,33 +3,37 @@ const validations = require('./validate');
 
 //Errors
 const definedErrors = require('../../errors');
-const ApplicationError = definedErrors.ApplicationError;
 
-module.exports = (req, res, next) => {
-    validationResult = validations.validateAPIKeyHeader(req.header('X-API-KEY'));
+module.exports = (apiKey) => {
+    validationResult = validations.validateAPIKeyHeader(apiKey);
     if(!validationResult.valid){
         let caughtError;
         if(validationResult.error == "No api key header") {
             caughtError = new definedErrors.NoApiKeyHeader();
-            caughtError.setAdditionalDetails("API Key Header -" + req.header('X-API-KEY'));
+            caughtError.setAdditionalDetails("API Key Header -" + apiKey);
         } else if(validationResult.error == "Malformed api key header"){
             caughtError = new definedErrors.InvalidRequest();
-            caughtError.setAdditionalDetails("API Key Header -" + req.header('X-API-KEY'));
+            caughtError.setAdditionalDetails("API Key Header -" + apiKey);
         } else {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(validationResult.error);
         }
-        return next(caughtError);
+        throw caughtError;
     }
-    if(req.header('X-API-KEY') === '1Ie007qXmLbFKe03sTJPyjfImquKJMPI'){ //testing, to be picked up from DB
-        res.locals.service = 'developer';
-        next();
-    }else if(req.header('X-API-KEY') === 'GdPbd9lgwQBWRF6owmneJD9db4hPYZ4Z'){
-        res.locals.service = 'deviceManagement';
-        next();
+    if(apiKey === '1Ie007qXmLbFKe03sTJPyjfImquKJMPI'){ //testing, to be picked up from DB
+        return {
+            authSuccessful: true, 
+            service: 'developer'
+        };
+    }else if(apiKey === 'GdPbd9lgwQBWRF6owmneJD9db4hPYZ4Z'){
+        return {
+            authSuccessful: true, 
+            service: 'iam'
+        };
     }else{
-        res
-        .status(403)
-        .json({code:403,message:"Invalid API KEY",name:"forbidden"});
+        return {
+            authSuccessful: false, 
+            error: "Incorrect API KEY"
+        };
     } 
 }

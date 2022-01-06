@@ -6,40 +6,51 @@ const internalHttpsRequestHelper = require('../../utils/helpers/internalHttpsReq
 const definedErrors = require('../../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
-module.exports = (req, res, next) => {
-    validationResult = validations.validateAuthorizationHeader(req.header('Authorization'));
+module.exports = (authorizationHeader) => {
+    validationResult = validations.validateAuthorizationHeader(authorizationHeader);
     if(!validationResult.valid){
         let caughtError;
         if(validationResult.error == "No authorization header") {
             caughtError = new definedErrors.NoAuthorizationHeader();
-            caughtError.setAdditionalDetails("Authorization Header -" + req.header('Authorization'));
+            caughtError.setAdditionalDetails("Authorization Header -" + authorizationHeader);
         } else if(validationResult.error == "Malformed authorization header"){
             caughtError = new definedErrors.InvalidRequest();
-            caughtError.setAdditionalDetails("Authorization Header -" + req.header('Authorization'));
+            caughtError.setAdditionalDetails("Authorization Header -" + authorizationHeader);
         } else {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(validationResult.error);
         }
-        return next(caughtError);
+        throw caughtError;
     }
 
-    internalHttpsRequestHelper('iam', '/internal/validateUserToken', 'POST', {'Authorization': 'Bearer '+ req.header('Authorization').split(" ")[1]}, null)
+    internalHttpsRequestHelper('iam', '/internal/validateUserToken', 'POST', {'Authorization': 'Bearer '+ authorizationHeader.split(" ")[1]}, null)
     .then(data => {
         if(data.code === 200){
-            res.locals.userId = data.data.userId;
-            return next();
+            // res.locals.userId = data.data.userId;
+            return {
+                authSuccessful: true, 
+                userId: data.data.userId
+            };
         }else{
             if(data.code && data.message && data.name && data.statusCode) 
-                return res.status(data.statusCode).json({ code: data.code, message: data.message,  name: data.name});
+            return {
+                authSuccessful: false, 
+                internalServiceResponse: {
+                    code: data.code, 
+                    message: data.message, 
+                    name: data.name, 
+                    statusCode: data.statusCode
+                }
+            };
             const caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails("Internal request for validating user token failed, response data - " + data);
-            return next(caughtError);
+            throw caughtError;
         }
     })
     .catch(error => {
-        if(error instanceof ApplicationError) return next(error);
+        if(error instanceof ApplicationError) throw error;
         const caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
-        return next(caughtError);
+        throw caughtError;
     })
 }
