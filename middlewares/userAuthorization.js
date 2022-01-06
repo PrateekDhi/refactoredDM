@@ -19,20 +19,20 @@ module.exports = (roles, additionalAuthorization) => {
                 }
                 let result;
                 if(additionalAuthorization === 'automationAuth') {
-                    if(!res.locals.automationId) {
+                    if(!req.body.automationId) {
                         let caughtError = definedErros.InternalServerError();
                         caughtError.setAdditionalDetails("No automationId provided for authorization in user authorization middleware");
                         return next(caughtError);
                     }
-                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, null, res.locals.automationId)
+                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, null, req.body.automationId)
                 }
                 else if(additionalAuthorization === 'sceneAuth') { 
-                    if(!res.locals.sceneId) {
+                    if(!req.body.sceneId) {
                         let caughtError = definedErros.InternalServerError();
                         caughtError.setAdditionalDetails("No sceneId provided for authorization in user authorization middleware");
                         return next(caughtError);
                     }
-                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, res.locals.sceneId, null)
+                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, req.body.sceneId, null)
                 }
                 else result = userAuthorization(roles, userId, groupId);
                 if(!result.authSuccessful) 
