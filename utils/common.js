@@ -283,4 +283,6 @@ exports.toBoolean = (value) => {
     return strValue === 'true' || strValue === '1' ? true : false
 };
 
+exports.allArrayElementsEqual = (array) => array.every(val => val === array[0]);
+
 exports.parseAsync = Promise.method(JSON.parse);
