@@ -40,11 +40,17 @@ module.exports = (req, res, next) => {
         }
         if(results[0] === false){
             //Group with the id given in request body does not exist
+            const caughtError = definedErrors.IncorrectGroupId();
+            caughtError.setAdditionalDetails("GroupId in request body does not exist in the database, groupId: " + req.body.groupId);
+            next(caughtError);
         }
         results.shift();  //After this results will only contain elements starting from index = 1
         if(results[0] === true) results.push(req.body.groupId); //The groupId in the request body should be equal to all the group ids in the array
-        if(!cn.allArrayElementsEqual(results)){
+        if(!cn.allArrayElementsEqual(results)) {
             //Entities in the request body do not belong to the same group
+            const caughtError = definedErrors.GroupEntitiesMismatch();
+            caughtError.setAdditionalDetails("Entities in the request body do not have the same groupId or it does not match with the groupId sent in the request body, request body : " + JSON.stringify(req.body));
+            next(caughtError);
         }
         res.locals.groupId = results[0];
         return next();
