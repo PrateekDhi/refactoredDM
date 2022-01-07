@@ -3,7 +3,7 @@ const c = require('../utils/handlers/controller');
 
 //Middlewares
 const checkTokenAuthentication = require('../auth/UserAuthentication');
-const authorize = require('../auth/UserAuthorization');
+const authorize = require('../middlewares/userAuthorization');
 const validationMiddleware = require('../middlewares/requestValidation');
 const stringifiedObjectParser = require('../middlewares/stringifiedObjectParser');
 const groupEntityValidation = require('../middlewares/groupEntityValidation');
