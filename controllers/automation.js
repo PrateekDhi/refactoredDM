@@ -28,6 +28,7 @@ const Response = require('../utils/response');
 
 //Errors
 const definedErrors = require('../errors');
+const Roles = require('../utils/helpers/roles');
 const ApplicationError = definedErrors.ApplicationError;
 
 exports.changeAutomationActivationStatus = (automationId, activationStatus, userId) => {
@@ -46,11 +47,27 @@ exports.createTimeBasedAutomation = (groupId, automationName, triggerTime, trigg
     /**
      * @Validations
      * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
+     * 2) 
      * 
     **/ 
     return new Promise((resolve,reject) => {
-        
+        if(!res.locals.userRole) {
+            const caughtError = definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails("User role not present in res.locals, res.locals = " + res.locals);
+            reject(caughtError);
+        }
+        if(res.locals.userRole == Roles.Owner){
+            automationService.createNewTimeBasedAutomation(groupId, automationName, triggerTime, triggerWeekDays, allUsersAccess, deviceId, actions, sceneId, triggerDate, userId)
+            .then(automationId => {
+                
+            })
+        }else if(res.locals.userRole == Roles.Member) {
+
+        }else {
+            const caughtError = definedErrors.Forbidden();
+            caughtError.setAdditionalDetails("Incorrect userRole in res.locals during createTimeBasedAutomation, res.locals.userRole = " + res.locals.userRole);
+            reject(caughtError);
+        }
     })
 }
 

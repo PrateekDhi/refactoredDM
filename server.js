@@ -42,6 +42,7 @@ const undefinedRoutes = require('./routes/undefined');
 // const restrictedAreaRoutes = require('./routes/restrictedAreaRoutes')(express.Router(), app, restrictedAreaController);
 // const {createMySqlPool} = require('./database/mysql')
 // const {initializeFCMConnection} = require('./controllers/fcm')
+const socketMessaging = require('./middlewares/socketMessaging');
 const handlingErrorsMiddleware =  require('./middlewares/error');
 const errorHandler = require('./utils/handlers/error');
 require('express-async-errors')
@@ -94,6 +95,7 @@ app.use('/restricted', socketIORoutes);
 app.use('/internal', internalRoutes);
 
 app.use(undefinedRoutes);
+app.use(socketMessage)
 app.use(handlingErrorsMiddleware);
 
 try{
