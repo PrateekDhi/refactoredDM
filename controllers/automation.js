@@ -38,8 +38,7 @@ exports.changeAutomationActivationStatus = (automationId, activationStatus, user
      * 
     **/ 
     return new Promise((resolve,reject) => {
-        let response = new Response(null,"Automation status changed successfully",200,null, 200);
-        return resolve(response.getResponse());
+        
     })
 }
 

@@ -7,6 +7,7 @@ const authorize = require('../middlewares/userAuthorization');
 const validationMiddleware = require('../middlewares/requestValidation');
 const stringifiedObjectParser = require('../middlewares/stringifiedObjectParser');
 const groupEntityValidation = require('../middlewares/groupEntityValidation');
+const automationRole = require('../middlewares/automationRole');
 
 //Controllers
 const automationController = require('../controllers/automation');
@@ -79,7 +80,8 @@ module.exports = (router, app) => {
     validationMiddleware,
     checkTokenAuthentication,
     groupEntityValidation,
-    authorize([Roles.Owner]),
+    automationRole,
+    authorize([Roles.Owner], 'automationAuth'),
     c(automationController.deleteAutomation, (req, res, next) => [req.body.groupId, req.body.automationId, 
         res.locals.userId
     ]));

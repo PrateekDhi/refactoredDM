@@ -24,7 +24,7 @@ module.exports = (roles, additionalAuthorization) => {
                         caughtError.setAdditionalDetails("No automationId provided for authorization in user authorization middleware");
                         return next(caughtError);
                     }
-                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, null, req.body.automationId)
+                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, null, res.locals.isAutomationCreator)
                 }
                 else if(additionalAuthorization === 'sceneAuth') { 
                     if(!req.body.sceneId) {
@@ -32,7 +32,7 @@ module.exports = (roles, additionalAuthorization) => {
                         caughtError.setAdditionalDetails("No sceneId provided for authorization in user authorization middleware");
                         return next(caughtError);
                     }
-                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, req.body.sceneId, null)
+                    result = userAuthorization(roles, res.locals.userId, res.locals.groupId, res.locals.isSceneCreator, null)
                 }
                 else result = userAuthorization(roles, userId, groupId);
                 if(!result.authSuccessful) 
