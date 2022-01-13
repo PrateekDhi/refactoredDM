@@ -21,7 +21,7 @@ exports.messageEvent = function(topic, payload){
         return errorHandler.handleError(caughtError);
     }
     if(payload == null){
-        const caughtError = new definedErrors.InvalidMqttPayloadError();
+        const caughtError = new definedErrors.InvalidMqttPayload();
         caughtError.setMessage("Empty payload received from MQTT Topic");
         caughtError.setAdditionalDetails("Topic - " + topic);
         caughtError.setType('info');
@@ -29,7 +29,8 @@ exports.messageEvent = function(topic, payload){
     }
     Promise.all([
         inventoryService.checkDeviceTopicValidity(topic.split("/")[0]+"/"+topic.split("/")[1]),
-        deviceService.checkTopicOnboardedDevice(topic.split("/")[0]+"/"+topic.split("/")[1])
+        deviceService.checkTopicOnboardedDevice(topic.split("/")[0]+"/"+topic.split("/")[1]),
+        deviceService.checkValidMQTTPayload(payload)
     ])
     .then(checkResults => {
         if(!checkResults[0]) {
@@ -39,37 +40,59 @@ exports.messageEvent = function(topic, payload){
             caughtError.setType('info');
             throw caughtError;
         }
+        if(!checkResults[2]) {
+            const caughtError = new definedErrors.InvalidMqttPayload();
+            caughtError.setMessage("Incorrect payload received from valid MQTT Topic");
+            caughtError.setAdditionalDetails(payload);
+            caughtError.setType('info');
+            throw caughtError;
+        }
         return Promise.all([cn.parseAsync(message.toString()),checkResults[1]])
     })
-    .then(([parsedData, checkResult]) => {
+    .then(([parsedData, deviceIsOnboarded]) => {
+        return Promise.all([deviceService.getDeviceIdFromTopic(topic.split("/")[1]), parsedData, deviceIsOnboarded]);
+    })
+    .then(([deviceId, parsedData, deviceIsOnboarded]) => {
+        if(parsedData.iv != null && parsedData.eData != null) {   //Device message is encrypted
+            return Promise.all([deviceService.decryptDeviceData(parsedData,deviceId),deviceId,deviceIsOnboarded])
+        }else { //Device message is encrypted
+            return Promise.all([parsedData,deviceId,deviceIsOnboarded])
+        }
+    })
+    .then(([mqttProcessableData, deviceId, deviceIsOnboarded]) => {
         if(topic.split("/").length === 2){  //Message from device primary topic, TODO: Add "pub" and "sub" denotes its a publishing topic
-            if(!checkResult){
-                deviceService.getDeviceIdFromTopic(topic.split("/")[1],parsedData)
-                .then(deviceId => deviceConfigurationService.getConfigurationStatus(deviceId))
-                .then(deviceConfigurationStatus => {
-                    
-                })
-            }else{
-
+            if(!deviceIsOnboarded){  //Device is not onboarded
+                return deviceLiveDataHandlingService.handleNonOnboardedDeviceData(deviceId, mqttProcessableData);
+            }else{  //Device is onboarded
+                return deviceLiveDataHandlingService.handlePrimaryTopicData(deviceId, mqttProcessableData);
             }
-        }else{ //Message from device feature topic and "pub" denotes its a publishing topic
-            if(!checkResult){
+        }else{ //Message from device secondary topic and "pub" denotes its a publishing topic
+            if(!deviceIsOnboarded){
                 const caughtError = new definedErrors.NonOnboardedDeviceSendingMQTTMessage();
                 caughtError.setMessage("Device with this topic is not onboarded, should not be sending data");
                 caughtError.setAdditionalDetails("Topic - " + topic + "Payload - " + parsedData);
                 caughtError.setType('warning');
                 throw caughtError;
             }
-
+            return deviceLiveDataHandlingService.handleSecondaryTopicData(deviceId, mqttProcessableData);
         }
-    }).catch(error => {
+    })
+    .then(response => {
+        //Response after live data handling
+        try {
+            console.log('Response after successful MQTT live data handling', cn.parseAsync(response))
+        } catch(err) {
+            console.log('Response after successful MQTT live data handling', response)
+        }
+    })
+    .catch(error => {
         if(error instanceof ApplicationError) return errorHandler.handleError(error);
         let caughtError;
         //TODO: Handle the error of failed JSON parsing and handle it separately as invalid payload error
         caughtError = new definedErrors.InternalServerError();
         caughtError.setMessage("Internal server error on mqtt message event");
         caughtError.setAdditionalDetails(error);
-        return errorHandler.handleError(error);
+        return errorHandler.handleError(caughtError);
     })
 }
 
