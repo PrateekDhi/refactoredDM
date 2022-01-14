@@ -103,7 +103,7 @@ try{
         console.log("\x1b[32m",'Mongo Database connected')
         initiateMySqlPool()
         .then(response => {
-            if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully')
+            if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully');
             else console.log("\x1b[32m",'MySql Pool Initialization response - ', response);
             server.listen(config.app.port, config.app.ip, () => {
                 console.log("\x1b[32m",'Server started, IP - '+config.app.ip+ ', Port - '+config.app.port);

@@ -1,4 +1,4 @@
-const SocketIOToken = require('../models/SQL/SocketIOToken');
+const socketIOService = require('../services/socketIO');
 const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
@@ -20,11 +20,10 @@ module.exports = (socket, next) => {
 //TODO:
 const verifyToken = token => {
     return new Promise((resolve, reject) => {
-        SocketIOToken.findById(token)
-        .then(([rows,fields]) => {
-            if(rows.length == 1) return resolve(rows[0].userId);
-            else if(rows.length == 0) throw new Error("No entries found for token");
-            throw new Error("Duplicate entries found for given token");
+        socketIOService.getTokenDataByTokenValue(token)
+        .then(result => {
+            if(!result.exists) throw new Error("No entries found for token");
+            return resolve(result.userId)
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
