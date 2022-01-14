@@ -54,9 +54,9 @@ exports.messageEvent = function(topic, payload){
     })
     .then(([deviceId, parsedData, deviceIsOnboarded]) => {
         if(parsedData.iv != null && parsedData.eData != null) {   //Device message is encrypted
-            return Promise.all([deviceService.decryptDeviceData(parsedData,deviceId),deviceId,deviceIsOnboarded])
+            return Promise.all([deviceService.decryptDeviceData(parsedData,deviceId),deviceId,deviceIsOnboarded]);
         }else { //Device message is encrypted
-            return Promise.all([parsedData,deviceId,deviceIsOnboarded])
+            return Promise.all([parsedData,deviceId,deviceIsOnboarded]);
         }
     })
     .then(([mqttProcessableData, deviceId, deviceIsOnboarded]) => {
@@ -80,9 +80,9 @@ exports.messageEvent = function(topic, payload){
     .then(response => {
         //Response after live data handling
         try {
-            console.log('Response after successful MQTT live data handling', cn.parseAsync(response))
+            console.log('Response after successful MQTT live data handling', cn.parseAsync(response));
         } catch(err) {
-            console.log('Response after successful MQTT live data handling', response)
+            console.log('Response after successful MQTT live data handling', response);
         }
     })
     .catch(error => {
@@ -100,13 +100,13 @@ exports.disconnectEvent = function(packet){
     const caughtError = new definedErrors.MqttConnectionError();
     caughtError.setMessage("Disconnected from mqtt");
     caughtError.setAdditionalDetails(packet);
-    caughtError.setType('fatal')
+    caughtError.setType('fatal');
     errorHandler.handleError(caughtError);
     // console.log('Disconnected from mqtt, Packet received -',packet); //TODO: Use Logger
 }
 
 exports.reconnectEvent = function(){ //TODO: Use Logger
-    console.log('Reconnecting to mqtt now')
+    console.log('Reconnecting to mqtt now');
 }
 
 exports.closeEvent = function(data){ //TODO: Use Logger
@@ -114,6 +114,6 @@ exports.closeEvent = function(data){ //TODO: Use Logger
     const caughtError = new definedErrors.MqttConnectionError();
     caughtError.setMessage("MQTT connection closed");
     caughtError.setAdditionalDetails(data);
-    caughtError.setType('fatal')
+    caughtError.setType('fatal');
     errorHandler.handleError(caughtError);
 }
