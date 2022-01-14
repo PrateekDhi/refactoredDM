@@ -95,7 +95,7 @@ app.use('/restricted', socketIORoutes);
 app.use('/internal', internalRoutes);
 
 app.use(undefinedRoutes);
-app.use(socketMessage)
+// app.use(socketMessage)
 app.use(handlingErrorsMiddleware);
 
 try{
@@ -106,16 +106,16 @@ try{
             if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully')
             else console.log("\x1b[32m",'MySql Pool Initialization response - ', response);
             server.listen(config.app.port, config.app.ip, () => {
-                console.log("\x1b[32m",'IP - '+config.app.ip+ ',Port - '+config.app.port);
+                console.log("\x1b[32m",'Server started, IP - '+config.app.ip+ ', Port - '+config.app.port);
             });
             //TODO: Add FCM Initialization and time based scene control
-            // Promise.allSettled([
-            //     initializeMQTTClient()
-            // ])
-            // .then(values => {
-            //     if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
-            //     else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
-            // });
+            Promise.allSettled([
+                initializeMQTTClient()
+            ])
+            .then(values => {
+                if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
+                else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
+            });
             // startMqttConnection().then(async (status) => {
             //     if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');
             //     else if(status == 0) console.log("\x1b[31m", 'Failed to connect to MQTT server');
