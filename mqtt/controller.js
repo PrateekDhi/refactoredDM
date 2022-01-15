@@ -58,7 +58,7 @@ module.exports = () => {
             }else return reject({"status":"failed", "error":`Failed to connect to MQTT within 5 seconds, Error - ${connectionError.message}`});
             runCount++;
         }
-        setTimeout(runConnectionCheck, 500);
+        setTimeout(runConnectionCheck, 100);
     })
 }
 

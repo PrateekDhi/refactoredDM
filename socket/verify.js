@@ -1,4 +1,7 @@
+//Services
 const socketIOService = require('../services/socketIO');
+
+//Errors
 const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
