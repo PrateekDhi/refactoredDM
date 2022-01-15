@@ -11,6 +11,7 @@ const cors = require('cors');
 const server = require('http').createServer(app);
 
 const {initializeMQTTClient} = require('./mqtt');
+const timedAutomationRunner = require('./timedAutomation');
 
 const config = require('./config');
 const definedErrors = require('./errors');
@@ -103,18 +104,21 @@ try{
         console.log("\x1b[32m",'Mongo Database connected')
         initiateMySqlPool()
         .then(response => {
-            if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully')
+            if(response.status == 'success')console.log("\x1b[32m",'App Primary MySql Pool Initialized successfully');
             else console.log("\x1b[32m",'MySql Pool Initialization response - ', response);
             server.listen(config.app.port, config.app.ip, () => {
                 console.log("\x1b[32m",'Server started, IP - '+config.app.ip+ ', Port - '+config.app.port);
             });
             //TODO: Add FCM Initialization and time based scene control
             Promise.allSettled([
-                initializeMQTTClient()
+                initializeMQTTClient(),
+                timedAutomationRunner()
             ])
             .then(values => {
-                if(values[0].status == 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
+                if(values[0].status === 'fulfilled')console.log("\x1b[32m",'MQTT Client Initialization response - ', values[0].value);
                 else console.log("\x1b[31m",'MQTT Client Initialization failed, reason - ', values[0].reason);
+                if(values[1].status === 'fulfilled')console.log("\x1b[32m",'Timed automation runner service initialized');
+                else console.log("\x1b[31m",'Timed automation runner service initialization failed')
             });
             // startMqttConnection().then(async (status) => {
             //     if(status == 1) console.log("\x1b[32m",'Connected to MQTT server');

@@ -18,10 +18,10 @@ const cn = require('../utils/common');
 const config = require('../config');
 
 //Models
-// const Automation = require('../models/NoSQL/Automation');
+const Automation = require('../models/NoSQL/Automation');
 
 //Services
-// const automationService = require('../services/automation');
+const automationService = require('../services/automation');
 
 //Response model
 const Response = require('../utils/response');
@@ -72,84 +72,42 @@ exports.createTimeBasedAutomation = (groupId, automationName, triggerTime, trigg
 }
 
 exports.updateTimeBasedAutomation = (groupId, automationId, automationName, triggerTime, triggerWeekDays, deviceId, actions, sceneId, triggerDate, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.createConditionBasedAutomation = (groupId, automationName, triggerDeviceId, triggerDeviceDataType, triggerDeviceValue, triggerDeviceCondition, allUsersAccess, deviceId, actions, sceneId, notify, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.updateConditionBasedAutomation = (groupId, automationId, automationName, triggerDeviceId, triggerDeviceDataType, triggerDeviceValue, triggerDeviceCondition, allUsersAccess, deviceId, actions, sceneId, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.deleteAutomation = (groupId, automationId, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.fetchAutomationData = (automationId, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.changeAutomationApprovalStatus = (groupId, automationId, approvalStatus, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })
 }
 
 exports.fetchAutomationByDevicesAndScenes = (groupId, deviceIds, sceneIds, userId) => {
-    /**
-     * @Validations
-     * 1) Does the automation with the given id exists
-     * 2) Is the activation status within the defined enum
-     * 
-    **/ 
     return new Promise((resolve,reject) => {
         
     })

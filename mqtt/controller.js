@@ -1,11 +1,33 @@
+/**
+ *
+ * file - controller.js - The controller for mqtt module
+ *
+ * @author     Prateek Shukla
+ * @version    0.1.0
+ * @created    10/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - Controller handler is the primary file for the mqtt module. The backend server mqtt client is initialized using this file.
+ * The file also handles the control flow of the mqtt module. 
+ *
+ * 28/12/2021 - PS - Created
+ * 
+**/
+
+//Dependencies
 const mqtt = require('mqtt');
 const { cli } = require('winston/lib/winston/config');
 
+//Local dependencies
 const config = require('../config');
 const cn = require('../utils/common');
 const eventsManager = require('./eventsManager');
+
+//Services
 const mqttService = require('./service');
 
+//Constants
 const MQTT_LINK = config.mqtt_server_client.link;
 const MQTT_OPTIONS = config.mqtt_server_client.options;
 const MQTT_SERVER_CONNECTION_STATUS_TOPIC = "serverStatus";
@@ -58,7 +80,7 @@ module.exports = () => {
             }else return reject({"status":"failed", "error":`Failed to connect to MQTT within 5 seconds, Error - ${connectionError.message}`});
             runCount++;
         }
-        setTimeout(runConnectionCheck, 500);
+        setTimeout(runConnectionCheck, 100);
     })
 }
 

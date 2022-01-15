@@ -1,7 +1,29 @@
+/**
+ *
+ * file - eventsManager.js - Socket events managers
+ *
+ * @author     Nikita Kriplani
+ * @version    0.1.0
+ * @created    10/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - File for defining events managers of socket io
+ *
+ *
+ * Unknown    - NK - Created
+ * 13/12/2021 - PS - Updated
+ *
+**/
+
 const cn = require('../utils/common');
-const definedErrors = require('../errors');
+
+//Services
 const groupService = require('../services/group');
 const categoryService = require('../services/category');
+
+//Errors
+const definedErrors = require('../errors');
 const errorHandler = require('../utils/handlers/error');
 
 //Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
@@ -43,6 +65,7 @@ exports.categorisedDevicesEvent = function(data1, data2){
     return groupAndCategorySpecificEvent(this, "categorisedDevices", data1, data2);
 }
 
+/**@description - Function which defined the handling of user specific events. In user specific events, the socket connections for only one single user are involved**/
 const userSpecificEvent = async (socket, roomString, data) => {
     if(!data) return socket.leave(roomString + ":" + socket.handshake.userId);
     if(!typeof (elem) == "boolean") {
@@ -53,6 +76,12 @@ const userSpecificEvent = async (socket, roomString, data) => {
     return socket.join(roomString + ":" + socket.handshake.userId);
 }
 
+/**
+ * 
+ * @description - Function which defined the handling of group specific events. In group specific events, 
+ * the socket connections for all the users of a single group are involved
+ * 
+**/
 const groupSpecificEvent = (socket, roomString, data) => {
     if(!data || !typeof (data) == "string") return; //TODO: Log error
     cn
@@ -82,6 +111,12 @@ const groupSpecificEvent = (socket, roomString, data) => {
     })
 }
 
+/** 
+ * 
+ * @description - Function which defined the handling of group AND category specific events. In these events, 
+ * the socket connections for all the users of a single group are involved but the name of the rooms are also based on the category along with group
+ * 
+**/
 const groupAndCategorySpecificEvent = (socket, roomString, data1, data2) => {
     if (!typeof (data2) == "boolean" || (!typeof (data1) == "string" || !data1)) return; //TODO: Log error
     cn.parseAsync(data1)
