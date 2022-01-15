@@ -1,3 +1,19 @@
+/**
+ *
+ * file - verify.js - Socket token verification file
+ *
+ * @author     Nikita Kriplani
+ * @version    0.1.0
+ * @created    25/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - All socket token verification is done in this file
+ *
+ * Unknown    - NK - Created
+ * 13/12/2021 - PS - Updated
+ * 
+**/
 //Services
 const socketIOService = require('../services/socketIO');
 

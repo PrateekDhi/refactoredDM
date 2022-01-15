@@ -1,3 +1,23 @@
+/**
+ *
+ * file - controller.js - The controller for socket module
+ *
+ * @author     Nikita Kriplani
+ * @version    0.1.0
+ * @created    10/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - Controller handler is the primary file for the socket module. The socket service is initialized using this file.
+ * The file also handles the control flow of the socket module. use of middleware using the use functionality and the declaration of various events
+ * in this module. Also it handles the disconnection of socket connections
+ *
+ *
+ * Unknown    - NK - Created
+ * 13/12/2021 - PS - Updated
+ * 
+**/
+
 const { Server } = require('socket.io');
 //TODO: import logger
 const verifySocketConnection = require('./verify');
@@ -41,7 +61,7 @@ module.exports = app => {
         socket.on('groupMembers', eventsManager.groupMembersEvent);
         socket.on('groupCategories', eventsManager.groupCategoriesEvent);
         socket.on('categorisedDevices', eventsManager.categorisedDevicesEvent);
-        socket.on('disconnect', async error => {
+        socket.on('disconnect', error => {
             //TODO: Log error
             let caughtError = new definedErrors.SocketDisconnectionError();
             sockets[socket.handshake.userId]
@@ -51,7 +71,7 @@ module.exports = app => {
             if (sockets[socket.handshake.userId].length == 0) delete sockets[socket.handshake.userId];
             caughtError.setAdditionalDetails(error);
             caughtError.setType('info');
-            await errorHandler.handleError(caughtError);
+            errorHandler.handleError(caughtError);
         });
     })
 }

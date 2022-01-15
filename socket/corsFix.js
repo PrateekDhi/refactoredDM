@@ -1,4 +1,20 @@
-//To be used when allowed hosts are defined
+/**
+ *
+ * file - corsFix.js - The cors fix file
+ *
+ * @author     Prateek Shukla
+ * @version    0.1.0
+ * @created    10/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - The cors fix functionality used for defined hosts
+ *
+ *
+ * 10/11/2021 - PS - Created
+ * @todo To be used when allowed hosts are defined
+**/
+
 module.exports = hosts => {
     const isPortPresent = /(https?:\/\/.*):(\d*)\/?(.*)/g;
 
