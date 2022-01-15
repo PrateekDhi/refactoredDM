@@ -1,3 +1,20 @@
+/**
+ *
+ * file - eventsManager.js - Socket events managers
+ *
+ * @author     Prateek Shukla
+ * @version    0.1.0
+ * @created    10/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - File for defining events managers of mqtt events
+ *
+ *
+ * 29/12/2021 - PS - Created
+ *
+**/
+
 const cn = require('../utils/common');
 const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
@@ -6,11 +23,10 @@ const ApplicationError = definedErrors.ApplicationError;
 // const deviceConfigurationService = require('../services/deviceConfiguration')
 const errorHandler = require('../utils/handlers/error');
 
-//Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
-
 //TODO: If we could some how get the name of the event which was triggered inside the event handler with 'this' we can replace all the exported function with simply specific event functions
 //this.eventNames() gives an array of all the events which cannot be used for this
 
+//Cannot use arrow function due to the context of 'this' wont be the socket instance in arrow function
 exports.messageEvent = function(topic, payload){
     /** @description This line is only for logging MQTT Messages */
     cn.parseAsync(payload.toString()).then(message => console.log('Message from mqtt now', topic, message)).catch(err => console.log('Message from mqtt now', topic, payload.toString()));
