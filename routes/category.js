@@ -20,22 +20,22 @@ const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
-    router.post('/fetchGroupCategories',
-    validationMiddleware,
-    checkTokenAuthorization,
-    groupEntityValidation,
-    authorize([Roles.Owner, Roles.Member]),
-    c(categoryController.fetchGroupCategories, (req, res, next) => []));
+    // router.post('/fetchGroupCategories',
+    // validationMiddleware,
+    // checkTokenAuthorization,
+    // groupEntityValidation,
+    // authorize([Roles.Owner, Roles.Member]),
+    // c(categoryController.fetchGroupCategories, (req, res, next) => []));
 
-    router.post('/createCategory',
-    validationMiddleware, 
-    checkTokenAuthorization,
-    c(categoryController.createCategory, (req, res, next) => []));
+    // router.post('/createCategory',
+    // validationMiddleware, 
+    // checkTokenAuthorization,
+    // c(categoryController.createCategory, (req, res, next) => []));
 
-    router.post('/createCategories',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.createCategories, (req, res, next) => []));
-    router.post('/updateCategory',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.updateCategory, (req, res, next) => []));
-    router.post('/updateCategories',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.updateCategories, (req, res, next) => []));
-    router.post('/deleteCategory',checkTokenAuthorization,validationMiddleware,c(categoryController.deleteCategory, (req, res, next) => []));
+    // router.post('/createCategories',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.createCategories, (req, res, next) => []));
+    // router.post('/updateCategory',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.updateCategory, (req, res, next) => []));
+    // router.post('/updateCategories',checkTokenAuthorization,requestBodyArrayParsing,validationMiddleware,c(categoryController.updateCategories, (req, res, next) => []));
+    // router.post('/deleteCategory',checkTokenAuthorization,validationMiddleware,c(categoryController.deleteCategory, (req, res, next) => []));
 
     return router
 }
