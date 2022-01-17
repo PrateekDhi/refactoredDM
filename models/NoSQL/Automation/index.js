@@ -41,10 +41,6 @@ class Automation {
     }
     return dbOp;
   }
-  #aggregate(pipeline){
-
-  }
-
 
   static saveMany(automationData) {
     // const db = getDb().collection('automation');
