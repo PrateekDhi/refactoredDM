@@ -1,10 +1,13 @@
-const mongodb = require('mongodb');
-const getDb = require('../../../utils/databases/mongo').getDb;
-const ObjectID = require('mongodb').objectID;
-const db = getDb().collection('automations');
-const DatabaseServerError = require('../../../errors/database_server_error')
-class Automation {
+// const mongodb = require('mongodb');
+// const getDb = require('../../../utils/databases/mongo').getDb;
+// const ObjectID = require('mongodb').objectID;
+// const db = getDb().collection('automations');
+const DatabaseServerError = require('../../../errors/database_server_error');
+const InvalidFields = require('../../../errors/invalid_fields');
+const QueryExecutor = require('../../NoSQLEntities/index')
+class Automation extends QueryExecutor {
   constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus) {
+    super();
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.groupId = groupId;
     this.eventType = eventType;
@@ -27,60 +30,113 @@ class Automation {
    * @todo none
    * 
   **/
-  save() {
-    // const db = getDb().collection('automations');
-    let dbOp;
-    if (this._id) {
-      // Updating the automation
-      dbOp = db
-        .updateOne({ _id: this._id }, { $set: this });
-    } else {
-      // Inserting the automation
-      dbOp = db
-        .insertOne(this);
-    }
-    return dbOp;
-  }
 
-  static saveMany(automationData) {
-    // const db = getDb().collection('automation');
-    const insertedData = db.insertMany(automationData);
-    return insertedData;
-  }
 
-  static findById(id) {
-    // const db = getDb().collection('automations');
-    return db
-      .find({ _id: new mongodb.ObjectId(id) })
-      .next()
-  }
+  insertNewData(automationData) {
+    return new Promise((resolve, reject) => {
+      if (automationData == null) {
+        this.save(this).then(result => {
+          console.log(result);
+          resolve(result)
+        }).catch(err => { reject(err) });
+      } else {
+        this.save(automationData).then(result => {
+          console.log(result);
+          resolve(result)
+        }).catch(err => { reject(err) })
+      }
+    })
 
-  static fetchFieldById(ids, fieldName) {
-    const projectObj = {};
-    projectObj[fieldName] = 1;
-    db
-      .find({ _id: { $in: ids } })
-      .project(projectObj)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
   }
 
 
-  static getCountByGroupId(id, groupId) {
-    return db
-      .countDocuments({ _id: new mongodb.ObjectId(id), groupId: new mongodb.ObjectId(groupId) });
+  getDataById() {
+    return new Promise((resolve, reject) => {
+      if (this._id != null) {
+        this.findById(this._id).then(res => {
+          resolve(res);
+        }).catch(err => reject(err))
+      } else {
+        reject(new InvalidFields());
+      }
+    })
   }
 
-  getCountByAutomatinType(){
-    return db
-      .countDocuments({ _id: this._id, "triggerType": this.automationType });
+  getSpecificDataById(ids, fieldName) {
+    return new Promise((resolve, reject) => {
+      const projectObj = {};
+      projectObj[fieldName] = 1;
+      this.findAndProjectDataById(ids, projectObj).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
-  static aggregateGroupUsersAutomationsList(groupId, userId) {
+
+  // save() {
+  //   // const db = getDb().collection('automations');
+  //   let dbOp;
+  //   if (this._id) {
+  //     // Updating the automation
+  //     dbOp = db
+  //       .updateOne({ _id: this._id }, { $set: this });
+  //   } else {
+  //     // Inserting the automation
+  //     dbOp = db
+  //       .insertOne(this);
+  //   }
+  //   return dbOp;
+  // }
+
+  // static saveMany(automationData) {
+  //   // const db = getDb().collection('automation');
+  //   const insertedData = db.insertMany(automationData);
+  //   return insertedData;
+  // }
+
+  // static findById(id) {
+  //   // const db = getDb().collection('automations');
+  //   return db
+  //     .find({ _id: new mongodb.ObjectId(id) })
+  //     .next()
+  // }
+
+  // static fetchFieldById(ids, fieldName) {
+  //   const projectObj = {};
+  //   projectObj[fieldName] = 1;
+  //   db
+  //     .find({ _id: { $in: ids } })
+  //     .project(projectObj)
+  //     .toArray()
+  //     .then(res => {
+  //       return res;
+  //     }).catch(err => {
+  //       throw new DatabaseServerError();
+  //     })
+  // }
+
+
+  getCountByGroupId(id, groupId) {
+    return new Promise((resolve, reject) => {
+      let countObj = { _id: new mongodb.ObjectId(id), groupId: new mongodb.ObjectId(groupId) };
+      this.getCount(countObj).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
+
+  }
+
+  getCountByAutomatinType() {
+    return new Promise((resolve, reject) => {
+      let countObj = { _id: this._id, "triggerType": this.automationType };
+      this.getCount(countObj).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
+
+  }
+
+  aggregateGroupUsersAutomationsList(groupId, userId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -134,16 +190,21 @@ class Automation {
         }
       }
     ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
+    // db.aggregate(pipeline)
+    //   .toArray()
+    //   .then(res => {
+    //     return res;
+    //   }).catch(err => {
+    //     throw new DatabaseServerError();
+    //   })
   }
 
-  static aggregateGroupUsersAutomationsListV2(groupId, userId) {
+  aggregateGroupUsersAutomationsListV2(groupId, userId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -216,16 +277,14 @@ class Automation {
         }
       }
     ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
-  static aggregateAutomaitonIdsBySceneId(sceneIds, groupId) {
+  aggregateAutomaitonIdsBySceneId(sceneIds, groupId) {
     const pipeline = [
       {
         $match:
@@ -243,77 +302,73 @@ class Automation {
         }
       }
     ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
 
-  static aggregateValidAutomationByDeviceId(ids) {
+  aggregateValidAutomationByDeviceId(ids) {
     const pipeline = [
       {
-          $match: {
-              "_id": {
-                  $in: ids
-              }
+        $match: {
+          "_id": {
+            $in: ids
           }
+        }
       },
       {
-          $addFields: {
-              count: 1
-            }
+        $addFields: {
+          count: 1
+        }
       },
       {
-          $group: {
-              _id: "1",
-              allGroups: {
-                  $push: "$groupId"
-              },
-              eventDevices: {
-                  $push: "$event.deviceId"
+        $group: {
+          _id: "1",
+          allGroups: {
+            $push: "$groupId"
+          },
+          eventDevices: {
+            $push: "$event.deviceId"
 
-              },
-              triggerDevice: {
-                  $push: "$trigger.triggerDeviceId"
-              },
-              allScenes: {
-                  $push: "$event.sceneId"
-              },
-              totalCount: {
-                  $sum: "$count"
-              }
+          },
+          triggerDevice: {
+            $push: "$trigger.triggerDeviceId"
+          },
+          allScenes: {
+            $push: "$event.sceneId"
+          },
+          totalCount: {
+            $sum: "$count"
           }
+        }
       },
       {
-          $project: {
-              _id: 0,
-              allGroups: {
-                  $setUnion: ["$allGroups"]
-              },
-              allDevices: {
-                  $setUnion: ["$eventDevices", "$triggerDevice"]
-              },
-              allScenes: {
-                  $setUnion: ["$allScenes"]
-              },
-              totalCount: 1
-          }
+        $project: {
+          _id: 0,
+          allGroups: {
+            $setUnion: ["$allGroups"]
+          },
+          allDevices: {
+            $setUnion: ["$eventDevices", "$triggerDevice"]
+          },
+          allScenes: {
+            $setUnion: ["$allScenes"]
+          },
+          totalCount: 1
+        }
       }
-  ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    ];
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
-  static fetchAutomationData(id) {
+  fetchAutomationData(id) {
     const pipeline = [
       {
         $match: { "_id": new mongodb.ObjectId(id) }
@@ -345,16 +400,14 @@ class Automation {
         }
       }
     ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
-  static fetchAutomationDataByGroupId(groupId) {
+  fetchAutomationDataByGroupId(groupId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -386,32 +439,34 @@ class Automation {
         }
       }
     ];
-    db.aggregate(pipeline)
-      .toArray()
-      .then(res => {
-        return res;
-      }).catch(err => {
-        throw new DatabaseServerError();
-      })
+    return new Promise((resolve, reject) => {
+      this.getAggregationData(pipeline).then(res => {
+        resolve(res);
+      }).catch(err => reject(err));
+    })
   }
 
-  static deleteById(id) {
-    // const db = getDb().collection('automations');
-    if (id.length > 1) {
-      return db
-        .deleteMany({ _id: { $in: id } })
-    } else {
-      return db
-        .deleteOne({ _id: new mongodb.ObjectId(id[0]) })
-    }
+  deleteDataById(id) {
+    return new Promise((resolve, reject) => {
+      this.deleteById(id).then(res => {
+        resolve(res)
+      }).catch(err => reject(err));
+    })
+
   }
 
-  static updateMany(ids, groupId, switchToGroupId){
-    if(groupId != null){
-      return db.updateMany({ "groupId": new mongodb.ObjectId(groupId) }, { "groupId": switchToGroupId });
-    }else{
-      return db.updateMany({ _id: { $in: ids } }, { "groupId": switchToGroupId });
-    }
+  updateAutomationData(ids, groupId, switchToGroupId) {
+    return new Promise((resolve, reject) => {
+      let updateSet;
+      if (groupId != null) {
+        updateSet = [{ "groupId": new mongodb.ObjectId(groupId) }, { "groupId": switchToGroupId }];
+      } else {
+        updateSet = [{ _id: { $in: ids } }, { "groupId": switchToGroupId }];
+      }
+      this.updateMultipleDataSet(updateSet).then(res => {
+        resolve(res)
+      }).catch(err => reject(err));
+    })
   }
 
 }

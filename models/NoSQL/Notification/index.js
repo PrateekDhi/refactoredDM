@@ -17,7 +17,7 @@ const mongodb = require('mongodb');
 const getDb = require('../../../utils/databases/mongo').getDb;
 const db = getDb().collection('notifications');
 const DatabaseServerError = require('../../../errors/database_server_error');
-const Aggregation = require('../../NoSQLEntities/aggregation');
+const Aggregation = require('../../NoSQLEntities');
 
 
 class Notifications extends Aggregation {
@@ -37,8 +37,13 @@ class Notifications extends Aggregation {
 
     save() {
         let dbOp;
-        dbOp = db
-            .insertOne(this);
+        if (this._id) {
+            dbOp = db
+                .updateOne({ _id: this._id }, { $set: this });
+        } else {
+            dbOp = db
+                .insertOne(this);
+        }
         return dbOp;
     }
 
@@ -388,7 +393,7 @@ class Notifications extends Aggregation {
         };
         const pipeline = [
             {
-                $match:queryObject
+                $match: queryObject
             }
         ];
         try {

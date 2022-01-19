@@ -10,7 +10,7 @@ const groupEntityValidation = require('../middlewares/groupEntityValidation');
 const automationRole = require('../middlewares/automationRole');
 
 //Controllers
-const categoryController = require('../controllers/category');
+// const categoryController = require('../controllers/category');
 
 //Response model
 const Response = require('../utils/response');
