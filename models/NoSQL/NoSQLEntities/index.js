@@ -1,16 +1,13 @@
 /**
  * Common class for execution of NoSQL queries
  */
-const getDb = require('../../utils/databases/mongo').getDb;
+const getDb = require('../../../utils/databases/mongo').getDb;
 
 module.exports = class QueryExecutor {
     #collection;
-    constructor() {
+    constructor(collectionName) {
         this.db = getDb();
-    }
-
-    set collection(collection) {
-        this.#collection = this.db.collection(collection);
+        this.#collection = db.collection(collectionName);
     }
 
     async save(obj) {

@@ -4,10 +4,10 @@
 // const db = getDb().collection('automations');
 const DatabaseServerError = require('../../../errors/database_server_error');
 const InvalidFields = require('../../../errors/invalid_fields');
-const QueryExecutor = require('../../NoSQLEntities/index')
+const QueryExecutor = require('../NoSQLEntities/index')
 class Automation extends QueryExecutor {
   constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus) {
-    super();
+    super('automations');
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.groupId = groupId;
     this.eventType = eventType;
@@ -33,43 +33,26 @@ class Automation extends QueryExecutor {
 
 
   insertNewData(automationData) {
-    return new Promise((resolve, reject) => {
       if (automationData == null) {
-        this.save(this).then(result => {
-          console.log(result);
-          resolve(result)
-        }).catch(err => { reject(err) });
+        return this.save(this);
       } else {
-        this.save(automationData).then(result => {
-          console.log(result);
-          resolve(result)
-        }).catch(err => { reject(err) })
+        return this.save(automationData);
       }
-    })
-
   }
 
 
   getDataById() {
-    return new Promise((resolve, reject) => {
       if (this._id != null) {
-        this.findById(this._id).then(res => {
-          resolve(res);
-        }).catch(err => reject(err))
+        return this.findById(this._id);
       } else {
-        reject(new InvalidFields());
+        throw new InvalidFields();
       }
-    })
   }
 
   getSpecificDataById(ids, fieldName) {
-    return new Promise((resolve, reject) => {
       const projectObj = {};
       projectObj[fieldName] = 1;
-      this.findAndProjectDataById(ids, projectObj).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+      return this.findAndProjectDataById(ids, projectObj);
   }
 
 
@@ -117,22 +100,14 @@ class Automation extends QueryExecutor {
 
 
   getCountByGroupId(id, groupId) {
-    return new Promise((resolve, reject) => {
       let countObj = { _id: new mongodb.ObjectId(id), groupId: new mongodb.ObjectId(groupId) };
-      this.getCount(countObj).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+      return this.getCount(countObj)
 
   }
 
   getCountByAutomatinType() {
-    return new Promise((resolve, reject) => {
       let countObj = { _id: this._id, "triggerType": this.automationType };
-      this.getCount(countObj).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+      return this.getCount(countObj);
 
   }
 
@@ -190,11 +165,7 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline);
     // db.aggregate(pipeline)
     //   .toArray()
     //   .then(res => {
@@ -277,11 +248,7 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline);
   }
 
   aggregateAutomaitonIdsBySceneId(sceneIds, groupId) {
@@ -302,11 +269,7 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline);
   }
 
 
@@ -361,11 +324,7 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline);
   }
 
   fetchAutomationData(id) {
@@ -400,11 +359,7 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline)
   }
 
   fetchAutomationDataByGroupId(groupId) {
@@ -439,34 +394,22 @@ class Automation extends QueryExecutor {
         }
       }
     ];
-    return new Promise((resolve, reject) => {
-      this.getAggregationData(pipeline).then(res => {
-        resolve(res);
-      }).catch(err => reject(err));
-    })
+    return this.getAggregationData(pipeline)
   }
 
   deleteDataById(id) {
-    return new Promise((resolve, reject) => {
-      this.deleteById(id).then(res => {
-        resolve(res)
-      }).catch(err => reject(err));
-    })
+    return this.deleteById(id);
 
   }
 
   updateAutomationData(ids, groupId, switchToGroupId) {
-    return new Promise((resolve, reject) => {
       let updateSet;
       if (groupId != null) {
         updateSet = [{ "groupId": new mongodb.ObjectId(groupId) }, { "groupId": switchToGroupId }];
       } else {
         updateSet = [{ _id: { $in: ids } }, { "groupId": switchToGroupId }];
       }
-      this.updateMultipleDataSet(updateSet).then(res => {
-        resolve(res)
-      }).catch(err => reject(err));
-    })
+      return this.updateMultipleDataSet(updateSet);
   }
 
 }
