@@ -1,4 +1,4 @@
-// const mongodb = require('mongodb');
+const mongodb = require('mongodb');
 // const getDb = require('../../../utils/databases/mongo').getDb;
 // const ObjectID = require('mongodb').objectID;
 // const db = getDb().collection('automations');
@@ -32,27 +32,27 @@ class Automation extends QueryExecutor {
   **/
 
 
-  insertNewData(automationData) {
+  insertNewAutomationData(automationData) {
+    if (this._id) {
+      return this.updateSingelDataSet([{ _id: this._id }, { $set: this }]);
+    } else {
       if (automationData == null) {
         return this.save(this);
       } else {
         return this.save(automationData);
       }
+    }
   }
 
 
-  getDataById() {
-      if (this._id != null) {
-        return this.findById(this._id);
-      } else {
-        throw new InvalidFields();
-      }
+   static getAutomationDataById(id) {
+      return this.findById(new mongodb.ObjectId(id));
   }
 
-  getSpecificDataById(ids, fieldName) {
-      const projectObj = {};
-      projectObj[fieldName] = 1;
-      return this.findAndProjectDataById(ids, projectObj);
+  static getGivenAutomationDataById(ids, fieldName) {
+    const projectObj = {};
+    projectObj[fieldName] = 1;
+    return this.findAndProjectDataById(ids, projectObj);
   }
 
 
@@ -99,19 +99,19 @@ class Automation extends QueryExecutor {
   // }
 
 
-  getCountByGroupId(id, groupId) {
-      let countObj = { _id: new mongodb.ObjectId(id), groupId: new mongodb.ObjectId(groupId) };
-      return this.getCount(countObj)
+  static getAutomationCountByGroupId(id, groupId) {
+    let countObj = { _id: new mongodb.ObjectId(id), groupId: new mongodb.ObjectId(groupId) };
+    return this.getCount(countObj)
 
   }
 
-  getCountByAutomatinType() {
-      let countObj = { _id: this._id, "triggerType": this.automationType };
-      return this.getCount(countObj);
+  static getCountByAutomatinType(id, automationType) {
+    let countObj = { _id: new mongodb.ObjectId(id), "triggerType": automationType };
+    return this.getCount(countObj);
 
   }
 
-  aggregateGroupUsersAutomationsList(groupId, userId) {
+  static getGroupUsersAutomationsList(groupId, userId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -166,16 +166,9 @@ class Automation extends QueryExecutor {
       }
     ];
     return this.getAggregationData(pipeline);
-    // db.aggregate(pipeline)
-    //   .toArray()
-    //   .then(res => {
-    //     return res;
-    //   }).catch(err => {
-    //     throw new DatabaseServerError();
-    //   })
   }
 
-  aggregateGroupUsersAutomationsListV2(groupId, userId) {
+  static getGroupUsersAutomationsListV2(groupId, userId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -251,7 +244,7 @@ class Automation extends QueryExecutor {
     return this.getAggregationData(pipeline);
   }
 
-  aggregateAutomaitonIdsBySceneId(sceneIds, groupId) {
+  static getAutomaitonIdsBySceneIdViaAggregation(sceneIds, groupId) {
     const pipeline = [
       {
         $match:
@@ -273,7 +266,7 @@ class Automation extends QueryExecutor {
   }
 
 
-  aggregateValidAutomationByDeviceId(ids) {
+  static getValidAutomationByDeviceId(ids) {
     const pipeline = [
       {
         $match: {
@@ -327,7 +320,7 @@ class Automation extends QueryExecutor {
     return this.getAggregationData(pipeline);
   }
 
-  fetchAutomationData(id) {
+  static fetchAutomationData(id) {
     const pipeline = [
       {
         $match: { "_id": new mongodb.ObjectId(id) }
@@ -362,7 +355,7 @@ class Automation extends QueryExecutor {
     return this.getAggregationData(pipeline)
   }
 
-  fetchAutomationDataByGroupId(groupId) {
+  static fetchAutomationDataByGroupId(groupId) {
     const pipeline = [
       {
         $match: { "groupId": new mongodb.ObjectId(groupId) }
@@ -397,19 +390,19 @@ class Automation extends QueryExecutor {
     return this.getAggregationData(pipeline)
   }
 
-  deleteDataById(id) {
+  static deleteAutomationDataById(id) {
     return this.deleteById(id);
 
   }
 
-  updateAutomationData(ids, groupId, switchToGroupId) {
-      let updateSet;
-      if (groupId != null) {
-        updateSet = [{ "groupId": new mongodb.ObjectId(groupId) }, { "groupId": switchToGroupId }];
-      } else {
-        updateSet = [{ _id: { $in: ids } }, { "groupId": switchToGroupId }];
-      }
-      return this.updateMultipleDataSet(updateSet);
+  static updateAutomationData(ids, groupId, switchToGroupId) {
+    let updateSet;
+    if (groupId != null) {
+      updateSet = [{ "groupId": new mongodb.ObjectId(groupId) }, { "groupId": switchToGroupId }];
+    } else {
+      updateSet = [{ _id: { $in: ids } }, { "groupId": switchToGroupId }];
+    }
+    return this.updateMultipleDataSet(updateSet);
   }
 
 }

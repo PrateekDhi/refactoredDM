@@ -9,19 +9,19 @@
  * @license    For use by Dhi Technologies applications
  *
  * @description - All databse queries will be performed here
- *
+ * @todo - delete, insert and update function. 
  * 
 **/
 
 const mongodb = require('mongodb');
 const getDb = require('../../../utils/databases/mongo').getDb;
-const db = getDb().collection('notifications');
 const DatabaseServerError = require('../../../errors/database_server_error');
-const Aggregation = require('../../NoSQLEntities');
+const QueryExecutor = require('../NoSQLEntities');
 
 
-class Notifications extends Aggregation {
+module.exports = class Notifications extends QueryExecutor {
     constructor(_id, title, userId, type, notificationType, status, data, isActionable, creationTime, imageUrl, message) {
+        super("notifications");
         this._id = _id ? new mongodb.ObjectId(_id) : null;
         this.title = title;
         this.userId = userId;
@@ -35,31 +35,15 @@ class Notifications extends Aggregation {
         this.message = message;
     }
 
-    save() {
-        let dbOp;
+    insertNewData() {
         if (this._id) {
-            dbOp = db
-                .updateOne({ _id: this._id }, { $set: this });
+            return this.updateSingelDataSet([{ _id: this._id }, { $set: this }]);
         } else {
-            dbOp = db
-                .insertOne(this);
+            return this.save(this);
         }
-        return dbOp;
     }
 
-
-    aggregate(pipeline) {
-        db.aggregate(pipeline)
-            .toArray()
-            .then(res => {
-                return res;
-            }).catch(err => {
-                throw new DatabaseServerError();
-            })
-    }
-
-
-    static async fetchAggregation(_id) {
+    static fetchAggregation(_id) {
         const pipeline = [
             {
                 $match: { "_id": new mongodb.ObjectId(_id) }
@@ -75,15 +59,10 @@ class Notifications extends Aggregation {
                 }
             }
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (e) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
-    static async fetchPendingNotificationRequest(groupId, userId, notificationType, additionalField, fieldId) {
+    static fetchPendingNotificationRequest(groupId, userId, notificationType, additionalField, fieldId) {
         let comparedTime = Date.now() - 86400000;
         const pipeline = [
             {
@@ -110,15 +89,10 @@ class Notifications extends Aggregation {
                 $match: { "status": "Unresolved", "groupId": new mongodb.ObjectId(groupId), "notificationExpired": false }
             }
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (error) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
-    static async fetchUserNotification(userId) {
+    static fetchUserNotification(userId) {
         const pipeline = [
             {
                 $match: { "userId": new mongodb.ObjectId(userId) }
@@ -223,15 +197,10 @@ class Notifications extends Aggregation {
             }
 
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (error) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
-    static async fetchUserNotificationV2(userId, limit, offset) {
+    static fetchUserNotificationV2(userId, limit, offset) {
         const pipeline = [
             {
                 $match: { "userId": new mongodb.ObjectId(userId) }
@@ -345,15 +314,10 @@ class Notifications extends Aggregation {
             }
 
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (error) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
-    static async fetchGroupNotification(groupId) {
+    static fetchGroupNotification(groupId) {
         const pipeline = [
             {
                 $project: {
@@ -370,12 +334,7 @@ class Notifications extends Aggregation {
                 }
             }
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (error) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
     static findAndUpdate(_id) {
@@ -396,23 +355,11 @@ class Notifications extends Aggregation {
                 $match: queryObject
             }
         ];
-        try {
-            const result = await this.aggregate(pipeline);
-            return result;
-        } catch (error) {
-            throw new DatabaseServerError();
-        }
+        return this.getAggregationData(pipeline);
     }
 
-    static deleteById(id) {
-        // const db = getDb().collection('automations');
-        if (id.length > 1) {
-            return db
-                .deleteMany({ _id: { $in: id } })
-        } else {
-            return db
-                .deleteOne({ _id: new mongodb.ObjectId(id[0]) })
-        }
+    static deleteNotificationData(ids) {
+        return this.deleteById(ids);
     }
 
 }

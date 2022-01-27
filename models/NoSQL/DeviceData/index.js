@@ -1,7 +1,8 @@
 const mongodb = require('mongodb');
 const getDb = require('../../../utils/databases/mongo').getDb;
+const QueryExecutor = require('../NoSQLEntities');
 
-class DeviceData {
+class DevicesData extends QueryExecutor{
   constructor(_id, dataType, day, deviceId, hour, first, last, numberOfSamples, samples, total) {
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.dataType = dataType;
@@ -26,21 +27,71 @@ class DeviceData {
  * @todo none
  * 
 **/
-  save() {
-    const db = getDb();
-    let dbOp;
-    if (this._id) {
-      // Update the deviceData data
-      dbOp = db
-        .collection('devices_data')
-        .updateOne({ _id: this._id }, { $set: this });
-    } else {
-      dbOp = db
-        .collection('devices_data')
-        .insertOne(this);
-    }
-    return dbOp;
+
+insertNewDevicesData() {
+  if (this._id) {
+    return this.updateSingelDataSet([{ _id: this._id }, { $set: this }]);
+  } else {
+    return this.save(this);
   }
 }
 
-module.exports = DeviceData;
+static getAggregationData(deviceId,actionType) {
+  let pipeline = [
+    {
+        $match:{"deviceId":deviceId,"dataType":actionType}
+    },
+    { 
+        $sort: 
+        { 
+        "day": 1,
+        "hour": 1 
+        }
+    },
+    {
+    $group:
+        {
+        "_id": {
+            "deviceId":"$deviceId",
+            "dataType":"$dataType"
+        },
+        "lastData": { $last: "$$ROOT" }
+        }
+    },
+    {
+        $project:{
+            "_id":0,
+            "lastData":{$slice:["$lastData.samples",-1]},
+        }
+    },
+    {
+        $project:{
+            "lastData": {$arrayElemAt:["$lastData",0]}
+        } 
+    }
+];
+  return this.getAggregationData(pipeline);
+}
+
+
+static deleteMultipleDevicesData(ids){
+  return this.deleteById(ids);
+}
+  // save() {
+  //   const db = getDb();
+  //   let dbOp;
+  //   if (this._id) {
+  //     // Update the deviceData data
+  //     dbOp = db
+  //       .collection('devices_data')
+  //       .updateOne({ _id: this._id }, { $set: this });
+  //   } else {
+  //     dbOp = db
+  //       .collection('devices_data')
+  //       .insertOne(this);
+  //   }
+  //   return dbOp;
+  // }
+}
+
+module.exports = DevicesData;

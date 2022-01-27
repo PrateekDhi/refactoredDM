@@ -1,7 +1,7 @@
 const mongodb = require('mongodb');
 const getDb = require('../../../utils/databases/mongo').getDb;
-
-class AutomationUser {
+const QueryExecutor = require('../NoSQLEntities/index')
+class AutomationUser extends QueryExecutor{
   constructor(_id, automationId, userId) {
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.automationId = automationId;
@@ -19,44 +19,56 @@ class AutomationUser {
  * @todo none
  * 
 **/
-  save() {
-    const db = getDb();
-    let dbOp;
-    if (this._id) {
-      // Update the product
-      dbOp = db
-        .collection('automation_users')
-        .updateOne({ _id: this._id }, { $set: this });
-    } else {
-      dbOp = db
-        .collection('automation_users')
-        .insertOne(this);
-    }
-    return dbOp
-  }
 
-  static fetchAll() {
-    const db = getDb();
-    return db
-      .collection('automation_users')
-      .find()
-      .toArray()
-  }
+insertMultipleDataIntoAutomationUsers(dataObj){
+  return this.save(dataObj);
+}
 
-  static findById(prodId) {
-    const db = getDb();
-    return db
-      .collection('automation_users')
-      .find({ _id: new mongodb.ObjectId(prodId) })
-      .next()
-  }
+static deleteMultipleAutomationUsers(ids){
+  return this.deleteById(ids);
+}
 
-  static deleteById(prodId) {
-    const db = getDb();
-    return db
-      .collection('automation_users')
-      .deleteOne({ _id: new mongodb.ObjectId(prodId) })
-  }
+
+
+
+  // save() {
+  //   const db = getDb();
+  //   let dbOp;
+  //   if (this._id) {
+  //     // Update the product
+  //     dbOp = db
+  //       .collection('automation_users')
+  //       .updateOne({ _id: this._id }, { $set: this });
+  //   } else {
+  //     dbOp = db
+  //       .collection('automation_users')
+  //       .insertOne(this);
+  //   }
+  //   return dbOp
+  // }
+
+  // static fetchAll() {
+  //   const db = getDb();
+  //   return db
+  //     .collection('automation_users')
+  //     .find()
+  //     .toArray()
+  // }
+
+  // static findById(prodId) {
+  //   const db = getDb();
+  //   return db
+  //     .collection('automation_users')
+  //     .find({ _id: new mongodb.ObjectId(prodId) })
+  //     .next()
+  // }
+
+  // static deleteById(prodId) {
+  //   const db = getDb();
+  //   return db
+  //     .collection('automation_users')
+  //     .deleteOne({ _id: new mongodb.ObjectId(prodId) })
+  // }
 }
 
 module.exports = AutomationUser;
