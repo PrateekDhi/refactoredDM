@@ -14,8 +14,8 @@ module.exports = class SocketIOToken {
       throw new Error(validationResult.error)
     }
     return db.executeQuery(
-      'INSERT INTO socketio_token (_id, expiresAt, userId) VALUES (?, ?, ?)',
-      [this._id, this.expiresAt, this.userId]
+      'INSERT INTO socketio_token (_id, expiresAt, userId) VALUES (?)',
+      [[this._id, this.expiresAt, this.userId]]
     );
   }
 
