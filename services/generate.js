@@ -35,7 +35,7 @@ exports.generateNewUsername = () => {
             let caughtError;
             if(error.sqlMessage){
                 caughtError = new definedErrors.DatabaseServerError();
-                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setAdditionalDetails(cn.getSqlErrorStringFromError(error));
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";

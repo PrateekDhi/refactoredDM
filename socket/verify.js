@@ -15,6 +15,7 @@
  * 
 **/
 //Services
+const cn = require('../utils/common');
 const socketIOService = require('../services/socketIO');
 
 //Errors
@@ -49,7 +50,7 @@ const verifyToken = token => {
             let caughtError;
             if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
-                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setAdditionalDetails(cn.getSqlErrorStringFromError(error));
                 caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);

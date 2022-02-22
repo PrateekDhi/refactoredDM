@@ -6,7 +6,7 @@ const DatabaseServerError = require('../../../errors/database_server_error');
 const InvalidFields = require('../../../errors/invalid_fields');
 const QueryExecutor = require('../NoSQLEntities/index')
 class Automation extends QueryExecutor {
-  constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus) {
+  constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus, creationTime, updationTime) {
     super('automations');
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.groupId = groupId;
@@ -17,6 +17,8 @@ class Automation extends QueryExecutor {
     this.trigger = trigger;
     this.event = event;
     this.approvalStatus = approvalStatus;
+    this.creationTime = creationTime;
+    this.updationTime = updationTime;
   }
 
   /**
