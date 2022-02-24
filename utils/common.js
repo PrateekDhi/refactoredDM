@@ -286,3 +286,7 @@ exports.toBoolean = (value) => {
 exports.allArrayElementsEqual = (array) => array.every(val => val === array[0]);
 
 exports.parseAsync = Promise.method(JSON.parse);
+
+exports.getSqlErrorStringFromError = (error) => {
+    return `Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`;
+} 

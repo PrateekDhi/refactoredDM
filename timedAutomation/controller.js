@@ -32,8 +32,8 @@ module.exports = () => {
     cron.schedule("0,30 * * * * *", function() {    //This cron jobs runs every 30 seconds
         console.log('Timed automation handler running every 30 seconds')
         Promise.allSettled([
-            automationService.fetchRunnableTimeAndDeviceBasedAutomations(),
-            automationService.fetchRunnableTimeAndSceneBasedAutomations()
+            automationService.getRunnableTimeAndDeviceBasedAutomations(),
+            automationService.getRunnableTimeAndSceneBasedAutomations()
         ])
         .then(results => {
             console.log(results);

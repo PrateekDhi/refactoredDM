@@ -6,7 +6,7 @@ const DatabaseServerError = require('../../../errors/database_server_error');
 const InvalidFields = require('../../../errors/invalid_fields');
 const QueryExecutor = require('../NoSQLEntities/index')
 class Automation extends QueryExecutor {
-  constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus) {
+  constructor(_id, groupId, eventType, triggerType, name, status, trigger, event, approvalStatus, creationTime, updationTime) {
     super('automations');
     this._id = _id ? new mongodb.ObjectId(_id) : null;
     this.groupId = groupId;
@@ -17,6 +17,8 @@ class Automation extends QueryExecutor {
     this.trigger = trigger;
     this.event = event;
     this.approvalStatus = approvalStatus;
+    this.creationTime = creationTime;
+    this.updationTime = updationTime;
   }
 
   /**
@@ -405,6 +407,283 @@ class Automation extends QueryExecutor {
     return this.updateMultipleDataSet(updateSet);
   }
 
+  static findGroupAndEventDataFromSceneBasedByTriggerTimeValues(triggerHour, triggerMinute, triggerDate, triggerYear, triggerMonth, triggerDayOfMonth, triggerWeekDay) {
+    const pipeline = [
+      {
+          $match:{"triggerType" : "timeBased", "approvalStatus": "approved"}
+      },
+      {
+          $addFields:{
+              "status":{$slice:["$status",-1]},
+          }
+      },
+      {
+          $addFields:{
+              "status": {$arrayElemAt:["$status",0]},
+              "trigger.triggerDate":{$toDate: "$trigger.triggerDate"}
+          } 
+      },
+      {
+          $addFields:{
+              "trigger.year": {$year:"$trigger.triggerDate"},
+              "trigger.month": {$month:"$trigger.triggerDate"},
+              "trigger.dayOfMonth":{$dayOfMonth: "$trigger.triggerDate"}
+          } 
+      },
+      {
+          $unwind:{
+              "path": "$trigger.triggerWeekDays",
+              "preserveNullAndEmptyArrays": true
+          }
+      },
+      {
+          $match:{
+              "eventType":"sceneAutomation",
+              "trigger.triggerHour": triggerHour,
+              "trigger.triggerMinute": triggerMinute,
+              "status.value":"activated",
+              "trigger.triggerDate" : { "$lte" : triggerDate },
+              "$or" : [
+                  { "trigger.triggerWeekDays": triggerWeekDay },
+                  { "$and" : [
+                      { "trigger.triggerWeekDays":null },
+                      { "trigger.year": triggerYear},
+                      { "trigger.month": triggerMonth},
+                      { "trigger.dayOfMonth": triggerDayOfMonth},
+                  ] }
+              ]
+          }
+      },
+      // {
+      //     $match:{"triggerType":"timeBased","eventType":"sceneAutomation","trigger.triggerHour":currentHour,"trigger.triggerMinute":currentMinute,"status.value":"activated"}
+      // },
+      {
+          $lookup:
+          {
+              from: 'scenes',
+              localField: 'event.sceneId',
+              foreignField: '_id',
+              as:"scenesData"
+          }
+      },
+      {
+          $unwind:"$scenesData"
+      },
+      {
+          $match:{"scenesData.approvalStatus":"approved"}
+      },
+      {
+          $project:{
+              "_id":0,
+              "automationId":"$_id",
+              "groupId":1,
+              "eventDevices":"$scenesData.devices"
+          }
+      },
+      {
+          $unwind:"$eventDevices"
+      },
+      {
+          $lookup:
+          {
+              from: 'devices',
+              let:{
+                      pDeviceId: "$eventDevices.deviceId",
+                      pGroupId: "$groupId"
+                  },
+                  pipeline: [
+                      {
+                          $match: {
+                              $expr: {
+                                  $and: [
+                                      {
+                                          $eq: [
+                                              "$_id",
+                                              "$$pDeviceId"
+                                          ]
+                                      },
+                                      {
+                                          $eq: [
+                                              "$groupId",
+                                              "$$pGroupId"
+                                          ]
+                                      }
+                                  ]
+                              }
+                          }
+                      }
+                  ],
+                  as: "deviceData"
+          }
+      },
+      {
+          $unwind:{
+              path: "$deviceData",
+              preserveNullAndEmptyArrays: false
+          }
+      },
+      // {
+      //     $lookup:
+      //     {
+      //         from: 'devices',
+      //         localField: 'eventDevices.deviceId',
+      //         foreignField: '_id',
+      //         as:"deviceData"
+      //     }
+      // },
+      // {
+      //     $unwind:"$deviceData"
+      // },
+      {
+          $project:{
+              "automationId":1,
+              "groupId":1,
+              "eventDeviceId":"$eventDevices.deviceId",
+              "eventDeviceType":"$deviceData.type",
+              "eventDeviceSecondaryTopic":"$deviceData.secondaryTopic",
+              "eventDeviceActionType":"$eventDevices.actionType",
+              "eventDeviceActionValue":"$eventDevices.actionValue"
+          }
+      },
+      {
+          $group:{
+              "_id":{"automationId":"$automationId","eventDeviceId":"$eventDeviceId"},
+              "groupId":{$first:"$groupId"},
+              "eventDeviceType":{$first:"$eventDeviceType"},
+              "eventDeviceSecondaryTopic":{$first:"$eventDeviceSecondaryTopic"},
+              "eventDeviceActionData":{$push:{"actionType":"$eventDeviceActionType","actionValue":"$eventDeviceActionValue"}}
+          }
+      },
+      {
+          $project:{
+              "_id":0,
+              "automationId":"$_id.automationId",
+              "groupId":1,
+              "eventDeviceId":"$_id.eventDeviceId",
+              "eventDeviceType":1,
+              "eventDeviceSecondaryTopic":1,
+              "eventDeviceActionData":1,
+          }
+      }
+    ];
+    return this.getAggregationData(pipeline)
+  }
+
+  static findGroupAndEventDataFromDeviceBasedByTriggerTimeValues(triggerHour, triggerMinute, triggerDate, triggerYear, triggerMonth, triggerDayOfMonth, triggerWeekDay) {
+    const pipeline = [
+      {
+          $match:{"triggerType" : "timeBased", "approvalStatus": "approved"}
+      },
+      {
+          $addFields:{
+              "status":{$slice:["$status",-1]},
+          }
+      },
+      {
+          $addFields:{
+              "status": {$arrayElemAt:["$status",0]},
+              "trigger.triggerDate":{$toDate: "$trigger.triggerDate"}
+          } 
+      },
+      {
+          $addFields:{
+              "trigger.year": {$year:"$trigger.triggerDate"},
+              "trigger.month": {$month:"$trigger.triggerDate"},
+              "trigger.dayOfMonth":{$dayOfMonth: "$trigger.triggerDate"}
+          } 
+      },
+      {
+          $unwind:{
+              "path": "$trigger.triggerWeekDays",
+              "preserveNullAndEmptyArrays": true
+          }
+      },
+      {
+          $match:{
+              "eventType":"deviceAutomation",
+              "trigger.triggerHour":triggerHour,
+              "trigger.triggerMinute":triggerMinute,
+              "status.value":"activated",
+              "trigger.triggerDate" : { "$lte" : triggerDate },
+              "$or" : [
+                  { "trigger.triggerWeekDays":triggerWeekDay },
+                  { "$and" : [
+                      { "trigger.triggerWeekDays":null },
+                      { "trigger.year":triggerYear},
+                      { "trigger.month":triggerMonth},
+                      { "trigger.dayOfMonth":triggerDayOfMonth},
+                  ] }
+              ]
+          }
+      },
+      // {
+      //     $match:{"triggerType":"timeBased","eventType":"sceneAutomation","trigger.triggerHour":currentHour,"trigger.triggerMinute":currentMinute,"status.value":"activated"}
+      // },
+      {
+          $lookup:
+          {
+              from: 'devices',
+              let:{
+                      pDeviceId: "$event.deviceId",
+                      pGroupId: "$groupId"
+                  },
+                  pipeline: [
+                      {
+                          $match: {
+                              $expr: {
+                                  $and: [
+                                      {
+                                          $eq: [
+                                              "$_id",
+                                              "$$pDeviceId"
+                                          ]
+                                      },
+                                      {
+                                          $eq: [
+                                              "$groupId",
+                                              "$$pGroupId"
+                                          ]
+                                      }
+                                  ]
+                              }
+                          }
+                      }
+                  ],
+                  as: "deviceData"
+          }
+      },
+      {
+          $unwind:{
+              path: "$deviceData",
+              preserveNullAndEmptyArrays: false
+          }
+      },
+      // {
+      //     $lookup:
+      //     {
+      //         from: 'devices',
+      //         localField: 'event.deviceId',
+      //         foreignField: '_id',
+      //         as:"deviceData"
+      //     }
+      // },
+      // {
+      //     $unwind:"$deviceData"
+      // },
+      {
+          $project:{
+              "_id":0,
+              "automationId":"$_id",
+              "groupId":1,
+              "eventDeviceId":"$event.deviceId",
+              "eventDeviceType":"$deviceData.type",
+              "eventDeviceSecondaryTopic":"$deviceData.secondaryTopic",
+              "eventDeviceActionData":"$event.actions",
+          }
+      }
+    ];
+    return this.getAggregationData(pipeline);
+  }
 }
 
 module.exports = Automation;
