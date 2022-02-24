@@ -13,7 +13,7 @@ module.exports = class QueryExecutor {
     async save(obj) {
         let dbOp;
         try {
-            if (obj.length != null) {
+            if (typeof(obj) == 'object') {
                 dbOp = await QueryExecutor.#collection
                     .insertMany(obj);
             } else {
@@ -30,7 +30,7 @@ module.exports = class QueryExecutor {
 
     static async findById(id) {
         try {
-            if (id.length != null) {
+            if (typeof(obj) == 'object') {
                 const result = await this.#collection
                     .find({ _id: { $in: id } })
                     .next();
@@ -99,7 +99,7 @@ module.exports = class QueryExecutor {
     static async deleteById(id) {
         let dbOp;
         try {
-            if (id.length != null) {
+            if (typeof(obj) == 'object') {
                 dbOp = await this.#collection
                     .deleteMany({ "_id": { $in: id } });
             } else {

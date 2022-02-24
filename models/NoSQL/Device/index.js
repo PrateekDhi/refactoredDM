@@ -39,7 +39,7 @@ class Device extends QueryExecutor {
   }
 
   static getDeviceCount(id, conditionalEntity, entityId) {
-    if (id.length != null) {
+    if (typeof(id) == 'object') {
       let countObj = { "_id": { $in: id }, [conditionalEntity]: entityId };
       return this.getCount(countObj);
     } else {
